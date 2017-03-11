@@ -20,11 +20,11 @@ conn = url.openConnection()
 in_st_url = BR(ISR(conn.getInputStream()))
 
 with open("Temp_2.py","w") as f:
-	 	while True: 
-	 		try:
-				f.write(in_st_url.readLine()+"\n") 
-			except:
-				break
+	 while True:
+	 	try:
+			f.write(in_st_url.readLine()+"\n")
+		except:
+			break
 
 builder = pb(["python","Temp_2.py"])
 builder.directory(F("C:\\Users\\Sony\\Desktop\\jython-prac-prog\\network"))
@@ -47,9 +47,4 @@ s = S(p_i)
 
 while s.hasNextLine():
 	print (s.nextLine())
-
-
-
-
-
 
