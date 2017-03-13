@@ -10,8 +10,8 @@ class server(Thread):
 	def __init__(self,file_name):
 		self.list = []
 		self.ss = ServerSocket(777)
-		with open(file_name) as f:
-			self.list = f.readlines()
+		f =  open(file_name,"r")
+		self.list = f.readlines()
 
 	def run(self):
 
