@@ -29,14 +29,13 @@ class obj_output(Thread):
 pi_1 = pi()
 
 #object of pipedoutputstream pass pipedinputstream bcz of reading content from 
-#another side
 po_1 = po(pi_1)
 
 #create obj_input means write data 
 oi = obj_input(po_1)
 
 #create obj_output means read data
-oo = obj_output(pi_1,oi)
+oo = obj_output(pi_1,oi)uh
 
 #obj_input thread start
 oi.start()
