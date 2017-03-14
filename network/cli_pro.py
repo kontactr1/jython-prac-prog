@@ -8,22 +8,30 @@ from java.lang import Runtime
 
 class client(object):
 	def __init__(self):
-		self.s = Socket("localhost",777)
+		self.s = Socket("192.168.1.21",777)
 
 	def start_com(self):
 		s_is = Scanner(self.s.getInputStream())
 		file_name = s_is.nextLine()
+		print (file_name)
 		pro = Runtime.getRuntime().exec(file_name)
-		pro_os = PrintStream(pro.getOutputStream())
+		try:
+			pro_os = PrintStream(pro.getOutputStream())
+		except:
+			pass
 		print ("reached")
-		f = open("input_1.txt","r") 
-		lp = []
-		print (str(f)+" file")
-		for k in f:
-			lp.append(str(k))
-		for k in lp:
-			pro_os.print(k)
-		pro_os.close()
+		try:
+			f = open(raw_input("Enter input file name: "),"r") 
+			lp = []
+			print (str(f)+" file")
+			for k in f:
+				lp.append(str(k))
+			for k in lp:
+				pro_os.print(k)
+		except:
+			pass
+		finally:
+			pro_os.close()
 		pro_is = Scanner(pro.getInputStream())
 		s_os = PrintStream(self.s.getOutputStream())
 		s_os.println(file_name+" recieved")
