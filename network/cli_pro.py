@@ -8,7 +8,7 @@ from java.lang import Runtime
 
 class client(object):
 	def __init__(self):
-		self.s = Socket("192.168.1.21",777)
+		self.s = Socket("127.0.0.1",777)
 
 	def start_com(self):
 		s_is = Scanner(self.s.getInputStream())
