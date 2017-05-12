@@ -1,10 +1,17 @@
 import sqlite3
 
+
+#schema - done
+#ext_col
+#result fetch
+#ext queary
+
 class db_obj:
 
     def __init__(self):
         self.__conn = None
         self.__cursor = None
+    
 
     def create_db(self,name):
         try:
@@ -13,12 +20,30 @@ class db_obj:
         except Exception as e:
             print (e)
 
-    def read_schema(self):
+    def ext_col(*args):
         pass
+
+    def read_schema(self,name=None):
+        try:
+            if(name == None):
+                k = []
+                for row in  self.__cursor.execute("select name from sqlite_master where type = 'table'"):
+                     k.append(row)
+                for l in k:
+                    for col in self.__cursor.execute("select sql from sqlite_master where type = 'table' and name = "+"'{0}'".format(l[0])):
+                       print (l[0]," : ",col[0])
+                k.clear()
+                del k
+            else:
+                for col in self.__cursor.execute("select sql from sqlite_master where type = 'table' and name = "+"'{0}'".format(name)):
+                    print (col[0])
+        except Exception as e:
+            print (e)
+            
 
     def custom_query(self,statement):
         try:
-            self.self.__cursor.execute(statement_string)
+            self.__cursor.execute(statement_string)
             print ("Sucessfully Excecuted.")
         except Exception as e:
             print(e)
