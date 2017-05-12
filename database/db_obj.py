@@ -13,6 +13,53 @@ class db_obj:
         except Exception as e:
             print (e)
 
+    def read_schema(self):
+        pass
+
+    def custom_query(self,statement):
+        try:
+            self.self.__cursor.execute(statement_string)
+            print ("Sucessfully Excecuted.")
+        except Exception as e:
+            print(e)
+
+    def commit(self):
+        try:
+            self.__conn.commit()
+        except Exception as e:
+            print (e)
+
+    @staticmethod
+    def get_obj():
+        try:
+            return db_obj()
+        except:
+            print ("Problem occurred.")
+            return None
+
+
+    def insert_data(self,table_name,**col_data):
+        if(len(col_data) == 0):
+            return "Invalid Args."
+        else:
+            try:
+                statement_string = "INSERT INTO "+str(table_name)+" ("
+                statement_string1 = " VALUES("
+                for col in col_data:
+                    statement_string += col +","
+                    if(type(col_data[col]) != type(1)):
+                        statement_string1 += "'{0}'".format(col_data[col]) +","
+                    else:
+                        statement_string1 += str(col_data[col]) +","
+                statement_string = statement_string[:-1:] + ")"
+                statement_string1 = statement_string1[:-1:] + ")"
+                print (statement_string+statement_string1)
+                self.__cursor.execute(statement_string+statement_string1)
+                return "Successfully Inserted."
+            except Exception as e:
+                print (e)
+            
+
     
     def set_cursor(self):
         try:
