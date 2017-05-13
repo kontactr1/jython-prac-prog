@@ -3,14 +3,16 @@ import sqlite3
 
 #schema - done
 #ext_col
-#result fetch
+#result fetch - done
 #ext queary
+#custom queary
 
 class db_obj:
 
     def __init__(self):
         self.__conn = None
         self.__cursor = None
+        self.__cur = None
     
 
     def create_db(self,name):
@@ -20,11 +22,97 @@ class db_obj:
         except Exception as e:
             print (e)
 
+
+    def cur_dsc(self):
+         print (self.__cursor.description)
+        
+    
+    def select_data_table(self,table_name,col_names=[],order_by=None,order_by_key=None,limit=None):
+        try:
+            statement = "SELECT "
+            if(len(col_names) == 0):
+                statement += "* FROM "+str(table_name)+" "
+            else:
+                for val in col_names:
+                    statement += str(val)+", "
+                statement = statement[:-2] +" FROM "+str(table_name)
+            if(order_by != None):
+                statement += " ORDER BY "
+                for val in order_by:
+                    statement += str(val) +", "
+                if(order_by_key != None):
+                    statement = statement[:-2:] + str(order_by_key)
+                else:
+                #    print (statement)
+                    statement = statement[:-2:] + " ASC "
+                #    print (statement)
+            if(limit != None):
+                statement = statement + " LIMIT "+str(limit)
+            print (statement)
+            qu = self.__cursor.execute(statement)
+            from prettytable import PrettyTable
+            temp = [description[0] for description in qu.description]
+            #print (temp)
+            #print (dir(qu))
+            t = PrettyTable(temp)
+            for val in list(qu.fetchall()):
+               t.add_row(val)    
+            print (t)
+            print ("\nSuccessfullly Executed.\n")
+        except Exception as e:
+            print (e)
+            
+
+
+    def update_db(self,table_name,set_val,where_val,set_key=[],where_key=[]):
+        try:
+             statement_string = "UPDATE "+str(table_name)+" SET "
+             statement_string1 = " WHERE "
+             i = 0
+             if(len(set_key) >= len(set_val)):
+                 return "Invalid Statement"
+             else:
+                 for val in set_val:
+                     statement_string += str(val)+"="
+                     if(type(set_val[val]) != type(0)):
+                         statement_string += "'{0}'".format(set_val[val])
+                     else:
+                         statement_string += str(set_val[val])
+                     if(len(set_key) != len([]) and i<len(set_key)):
+                         statement_string += " "+str(set_key[i])+" " 
+                         i+=1
+                     else:
+                         statement_string += ", "
+             i = 0
+             print ("check - 1 ")
+             if(len(where_key) >= len(where_val)):
+                 return "Invalid Statement"
+             else:
+                 for val in where_val:
+                     statement_string1 += str(val)+"="
+                     if(type(where_val[val]) != type(0)):
+                         statement_string1 += "'{0}'".format(where_val[val])
+                     else:
+                         statement_string1 += str(where_val[val])
+                     if(len(where_key) != len([]) and i<len(where_key)):
+                         statement_string1 += " "+str(where_key[i])+" "
+                         i+=1
+                     else:
+                         statement_string1 += ", "
+                 statement_string = statement_string[:-2]+" "+statement_string1[:-2]
+             print (statement_string)
+             self.__cursor.execute(statement_string)
+             print ("Sucessfully Executed.")
+        except Exception as e:
+                print (e)
+               
+
     def ext_col(*args):
         pass
 
     def read_schema(self,name=None):
         try:
+            temp = []
             if(name == None):
                 k = []
                 for row in  self.__cursor.execute("select name from sqlite_master where type = 'table'"):
@@ -32,11 +120,15 @@ class db_obj:
                 for l in k:
                     for col in self.__cursor.execute("select sql from sqlite_master where type = 'table' and name = "+"'{0}'".format(l[0])):
                        print (l[0]," : ",col[0])
+                       temp.append(str(l[0])+" : "+str(col[0]))
                 k.clear()
                 del k
+                return temp
             else:
                 for col in self.__cursor.execute("select sql from sqlite_master where type = 'table' and name = "+"'{0}'".format(name)):
                     print (col[0])
+                    temp.append(col[0])
+                return temp
         except Exception as e:
             print (e)
             
@@ -114,6 +206,5 @@ class db_obj:
         self.__conn.close()
         self.__cursor = None
         self.__conn = None
-
-    
+        
         
