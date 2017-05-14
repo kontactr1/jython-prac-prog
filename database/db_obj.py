@@ -1,11 +1,10 @@
 import sqlite3
 
-
 #schema - done
 #ext_col
 #result fetch - done
 #ext queary
-#custom queary
+#custom queary - done
 
 class db_obj:
 
@@ -24,8 +23,39 @@ class db_obj:
 
 
     def cur_dsc(self):
-         print (self.__cursor.description)
-        
+        try:
+            print (self.__cursor.description)
+        except Exception as e:
+            print (e)
+
+
+    def del_data(self,table_name,where_val={},where_key=[]):
+        try:
+            statement_string1 = "DELETE FROM "+table_name
+            i = 0
+            if(len(where_val) == len(where_key) == len([])):
+                pass
+            else:
+                if(len(where_val) - len(where_key) != 1):
+                         return "Invalid Statement"
+                else:
+                    statement_string1 += " WHERE "
+                    for val in where_val:
+                        statement_string1 += str(val)+"="
+                        if(type(where_val[val]) != type(0)):
+                            statement_string1 += "'{0}'".format(where_val[val])
+                        else:
+                            statement_string1 += str(where_val[val])
+                        if(len(where_key) != len([]) and i<len(where_key)):
+                            statement_string1 += " "+str(where_key[i])+" "
+                            i+=1
+                statement_string1 = statement_string1[:-2:]
+            print (statement_string1)
+            self.__cursor.execute(statement_string1)
+            print ("\nSuccessfullly Executed.\n")
+        except Exception as e:
+            print (e)
+            
     
     def select_data_table(self,table_name,col_names=[],order_by=None,order_by_key=None,limit=None):
         try:
@@ -135,8 +165,22 @@ class db_obj:
 
     def custom_query(self,statement):
         try:
-            self.__cursor.execute(statement_string)
-            print ("Sucessfully Excecuted.")
+            if("select" in (statement.lower()[:6:])):
+                print ((statement.lower()[:6:]))
+                qu = self.__cursor.execute(statement)
+                from prettytable import PrettyTable
+                temp = [description[0] for description in qu.description]
+                #print (temp)
+                #print (dir(qu))
+                t = PrettyTable(temp)
+                for val in list(qu.fetchall()):
+                   t.add_row(val)    
+                print (t)
+                print ("\nSuccessfullly Executed.\n")
+        
+            else:    
+                self.__cursor.execute(statement)
+                print ("\nSucessfully Excecuted. \n")
         except Exception as e:
             print(e)
 
@@ -206,5 +250,5 @@ class db_obj:
         self.__conn.close()
         self.__cursor = None
         self.__conn = None
-        
-        
+
+    
