@@ -21,6 +21,13 @@ def home_page():
 def page_re():
     return "Enter data in url"
 
+
+#also valid
+#@app.route("/page_re/<title>/<title1>")
+#def create_vanity_url(title,title1):
+#    return url_carw(str(title)+"/"+str(title1))
+
+
 @app.route("/page_re/<title>")
 def create_vanity_url(title):
-    return url_carw(title)
+    return url_carw(str(title))

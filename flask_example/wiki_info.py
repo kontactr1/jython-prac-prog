@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 
 def url_carw(title: str):
     url = "https://en.wikipedia.org/wiki/"
-
-
+    #url = "https://www.zomato.com/"
+    
     url += str(title)
 
     h = {"User-Agent":""}
