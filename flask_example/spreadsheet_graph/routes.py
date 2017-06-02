@@ -31,6 +31,7 @@ def upload():
         filename = secure_filename(file.filename)
         global file_holder
         file_holder = filename
+        return str(file.content_length)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         return """
             <html>

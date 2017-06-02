@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{name}}'s Files</title>
+</head>
+<body>
+<h2>Files: </h2>
+<ol >
+{%- for item in file_list -%}
+     <li>{{ item }}</li>
+    {%- endfor -%}
+</ol>
+</body>
+</html>
