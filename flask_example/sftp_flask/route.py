@@ -75,7 +75,7 @@ def send_mail(email):
     session[request.environ['REMOTE_ADDR']+'_'+'code'] = str(code_generate())
     msg_part = MIMEText("Activation Code - " + session[request.environ['REMOTE_ADDR']+'_'+'code'])
     msg.attach(msg_part)
-    s.login("email@gmail.com", "email1234567890")
+    s.login("cemailgmail.com", "email1234567890")
     s.sendmail("email@gmail.com", email, msg.as_string())
     s.quit()
 
@@ -226,12 +226,24 @@ def cal_size(file_name):
         file_info = os.stat(file_name)
         return convert_bytes(file_info.st_size)
 
-@app.route("/storage")
+@app.route("/storage",methods=["GET","POST"])
 def show_storage():
-    storage_di = dict()
-    for item in glob("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"/*"):
-        storage_di[item.split("\\")[-1]] = cal_size(item)
-    return render_template("ShowStorage.html",storage_di=storage_di)
+    if request.method == "GET":
+        storage_di = dict()
+        for item in glob("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"/*"):
+            storage_di[item.split("\\")[-1]] = cal_size(item)
+        return render_template("ShowStorage.html",storage_di=storage_di)
+    elif request.method == "POST":
+        delete_list = request.form.getlist('sh_fi')
+        storage_list = file_conn.get(session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(",")
+        for file in delete_list:
+            if file in storage_list:
+                storage_list.remove(file)
+                os.remove("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+file)
+        file_conn.set(session[request.environ['REMOTE_ADDR']+'username'],
+                      ",".join(storage_list))
+        return "Operation Successfully Done."
+
 
 
 @app.errorhandler(404)

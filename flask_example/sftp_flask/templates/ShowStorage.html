@@ -6,10 +6,15 @@
 </head>
 <body>
     <h2>Files: </h2>
-<ol >
+<form method="post">
+ <table border="1">
 {%- for item in storage_di -%}
-     <li>{{ item }} - {{storage_di[item]}}</li>
+     <tr>
+         <td>{{ item }}</td> <td>{{storage_di[item]}}</td><td><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
+      </tr>
     {%- endfor -%}
-</ol>
+  </table><br /><br />
+  <input type="submit" value="Delete Files" />
+</form>
 </body>
 </html>
