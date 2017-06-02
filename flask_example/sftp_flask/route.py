@@ -9,11 +9,22 @@ from glob import glob
 from flask import jsonify
 import os
 import redis
+"""import smtplib
+import mimetypes
+from email.mime.multipart import MIMEMultipart
+from email import encoders
+from email.message import Message
+from email.mime.audio import MIMEAudio
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText"""
+from SendMail import send_mail_multiple
 
 #username_session = None
 #code = None
 r_conn = redis.StrictRedis(db=1,charset="utf-8",decode_responses=True)
 file_conn = redis.StrictRedis(db=2,charset="utf-8",decode_responses=True)
+e_conn = redis.StrictRedis(db=3,charset="utf-8",decode_responses=True)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -68,15 +79,15 @@ def send_mail(email):
     from email.mime.text import MIMEText
     s = se.SMTP_SSL('smtp.gmail.com')
     msg = MIMEMultipart('alternative')
-    msg['Form'] = "email@gmail.com"
+    msg['Form'] = "ch.email.456@gmail.com"
     msg['To'] = email
     msg['Subject'] = "Activation Code"
     #global code
     session[request.environ['REMOTE_ADDR']+'_'+'code'] = str(code_generate())
     msg_part = MIMEText("Activation Code - " + session[request.environ['REMOTE_ADDR']+'_'+'code'])
     msg.attach(msg_part)
-    s.login("cemailgmail.com", "email1234567890")
-    s.sendmail("email@gmail.com", email, msg.as_string())
+    s.login("ch.email.456@gmail.com", "ch1234567890")
+    s.sendmail("ch.email.456@gmail.com", email, msg.as_string())
     s.quit()
 
 
@@ -97,11 +108,14 @@ def register():
                         send_mail(email)
                         session[request.environ['REMOTE_ADDR'] + 'temp_session_user'] = username
                         session[request.environ['REMOTE_ADDR'] + 'temp_session_password'] = password
+                        session[request.environ['REMOTE_ADDR'] + 'temp_session_email'] = email
                 except Exception as e:
                     if (request.environ['REMOTE_ADDR']+'temp_session_user' in session):
                         session.pop(request.environ['REMOTE_ADDR']+'temp_session_user')
                     if (request.environ['REMOTE_ADDR'] + 'temp_session_password' in session):
                         session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_password')
+                    if (request.environ['REMOTE_ADDR'] + 'temp_session_email' in session):
+                        session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_email')
                     return "Sorry InternalError"+render_template("Register.html")
 
                 return """
@@ -142,10 +156,14 @@ def next_step():
                     session.pop(request.environ['REMOTE_ADDR']+'_'+'code')
                     r_conn.set(session[request.environ['REMOTE_ADDR']+'temp_session_user'],
                                session[request.environ['REMOTE_ADDR']+'temp_session_password'])
+                    e_conn.set(session[request.environ['REMOTE_ADDR']+'temp_session_user'],
+                               session[request.environ['REMOTE_ADDR'] + 'temp_session_email'],
+                    )
                     session.pop(request.environ['REMOTE_ADDR']+'temp_session_password')
                     os.mkdir("Data\\"+session[request.environ['REMOTE_ADDR']+'temp_session_user'])
                     file_conn.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'],"")
                     session.pop(request.environ['REMOTE_ADDR']+'temp_session_user')
+                    session.pop(request.environ['REMOTE_ADDR']+'temp_session_email')
 
                     return "Registration Successfully done  <br/> You can upload your file"
                 else:
@@ -243,6 +261,17 @@ def show_storage():
         file_conn.set(session[request.environ['REMOTE_ADDR']+'username'],
                       ",".join(storage_list))
         return "Operation Successfully Done."
+
+@app.route("/email",methods=["GET","POST"])
+def send_email_data():
+    if request.method == "POST":
+        mail_files = request.form.getlist('sh_fi')
+        for index in range(0,len(mail_files)):
+            mail_files[index] = "Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+mail_files[index]
+        send_mail_multiple(mail_files,
+                           e_conn.get(session[request.environ['REMOTE_ADDR']+'username']),
+                           session[request.environ['REMOTE_ADDR'] + 'username'])
+        return "Successfully Sended to your MailBox"
 
 
 

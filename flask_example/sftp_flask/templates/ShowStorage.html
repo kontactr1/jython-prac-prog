@@ -14,7 +14,9 @@
       </tr>
     {%- endfor -%}
   </table><br /><br />
-  <input type="submit" value="Delete Files" />
+    <input type="submit" value="Delete Files" /><br /><br/>
+    <input type="submit" value="get in email"  formaction="{{url_for('send_email_data')}}" formmethod="POST"/><br />
+    <h4>Email comma sep allowed</h4>
 </form>
 </body>
 </html>
