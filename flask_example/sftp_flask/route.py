@@ -262,9 +262,11 @@ def show_storage():
     if request.environ['REMOTE_ADDR']+'username' in session:
         if request.method == "GET":
             storage_di = dict()
+            size = 0
             for item in glob("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"/*"):
                 storage_di[item.split("\\")[-1]] = cal_size(item)
-            return render_template("ShowStorage.html",storage_di=storage_di)
+                size += os.stat(item).st_size
+            return render_template("ShowStorage.html",storage_di=storage_di,total_size = size )
         elif request.method == "POST":
             delete_list = request.form.getlist('sh_fi')
             storage_list = file_conn.get(session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(",")
@@ -279,9 +281,11 @@ def show_storage():
                                        msg="Go to Dashboard")
             else:
                 storage_di = dict()
+                size = 0
                 for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
                     storage_di[item.split("\\")[-1]] = cal_size(item)
-                return render_template("ShowStorage.html",storage_di=storage_di)
+                    size += os.stat(item).st_size
+                return render_template("ShowStorage.html",storage_di=storage_di,total_size = size)
     else:
         return render_template("Login.html")
 

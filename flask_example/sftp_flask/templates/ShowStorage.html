@@ -3,16 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <head>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load("current", {packages:["corechart"]});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Storage', 'Status'],
+          ['Storage',     {{total_size}}],
+          ['Remaining',      1024*1024*1024 - {{total_size}}]
+        ]);
+
+        var options = {
+          title: 'My Daily Activities',
+          is3D: true,
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+        chart.draw(data, options);
+      }
+    </script>
 </head>
 <body>
-    <h2>Files: </h2>
+    <h2>Files: </h2> {{total_size}}
+<div id="piechart_3d" style="width: 900px; height: 500px;"></div>
 <form method="post">
  <table border="1">
+
 {%- for item in storage_di -%}
      <tr>
          <td>{{ item }}</td> <td>{{storage_di[item]}}</td><td><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
       </tr>
     {%- endfor -%}
+     <div id="piechart_.3d" style="width: 900px; height: 500px;"></div>
   </table><br /><br />
     <input type="submit" value="Delete Files" /><br /><br/>
     <input type="submit" value="get in email"  formaction="{{url_for('send_email_data')}}" formmethod="POST"/><br /><br />
