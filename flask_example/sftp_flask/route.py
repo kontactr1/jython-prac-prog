@@ -214,24 +214,37 @@ def logout():
 
 @app.route("/upload",methods=["GET","POST"])
 def upload():
-    if request.method == "GET":
-        return render_template("Upload.html")
-    elif request.method == "POST":
-        file = request.files["file"]
-        filename = secure_filename(file.filename)
-        file.save(os.path.join("Data\\"+
-                               session[request.environ['REMOTE_ADDR']+'username'], filename))
-        if str(filename) not in file_conn.get(session[request.environ['REMOTE_ADDR']+'username']):
-            file_conn.append(session[request.environ['REMOTE_ADDR']+'username'],str(filename)+",")
-        return "Successfully Uploaded"
+    if request.environ['REMOTE_ADDR']+'username' in session:
+        if request.method == "GET":
+            return render_template("Upload.html")
+        elif request.method == "POST":
+            file = request.files["file"]
+            if (len(""+str(file.filename)+"a") <= 1):
+                return render_template("Upload.html")
+            else:
+                filename = secure_filename(file.filename)
+                file.save(os.path.join("Data\\"+
+                                       session[request.environ['REMOTE_ADDR']+'username'], filename))
+                if str(filename) not in file_conn.get(session[request.environ['REMOTE_ADDR']+'username']):
+                    file_conn.append(session[request.environ['REMOTE_ADDR']+'username'],str(filename)+",")
+                return render_template("Confirmation.html",type_of_con="File Successfully Uploaded",
+                                       return_url="Login",msg="Go to Dashboard")
+            
+    else:
+        return render_template("Login.html")
 
 @app.route("/data")
 def show_files():
-    return render_template("FilesDisplay.html",
+    if request.environ['REMOTE_ADDR'] + 'username' in session:
+        return render_template("FilesDisplay.html",
                            name = session[request.environ['REMOTE_ADDR']+'username'],
                            file_list =  file_conn.get(
-                               session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(",")
+                               session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(","),
+                            msg="Go to Dashboard"
                            )
+    else:
+        return render_template("Login.html")
+
 def convert_bytes(num):
     for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
         if num < 1024.0:
@@ -246,35 +259,72 @@ def cal_size(file_name):
 
 @app.route("/storage",methods=["GET","POST"])
 def show_storage():
-    if request.method == "GET":
-        storage_di = dict()
-        for item in glob("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"/*"):
-            storage_di[item.split("\\")[-1]] = cal_size(item)
-        return render_template("ShowStorage.html",storage_di=storage_di)
-    elif request.method == "POST":
-        delete_list = request.form.getlist('sh_fi')
-        storage_list = file_conn.get(session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(",")
-        for file in delete_list:
-            if file in storage_list:
-                storage_list.remove(file)
-                os.remove("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+file)
-        file_conn.set(session[request.environ['REMOTE_ADDR']+'username'],
-                      ",".join(storage_list))
-        return "Operation Successfully Done."
+    if request.environ['REMOTE_ADDR']+'username' in session:
+        if request.method == "GET":
+            storage_di = dict()
+            for item in glob("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"/*"):
+                storage_di[item.split("\\")[-1]] = cal_size(item)
+            return render_template("ShowStorage.html",storage_di=storage_di)
+        elif request.method == "POST":
+            delete_list = request.form.getlist('sh_fi')
+            storage_list = file_conn.get(session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(",")
+            if (len(delete_list) > 0):
+                for file in delete_list:
+                    if file in storage_list:
+                        storage_list.remove(file)
+                        os.remove("Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+file)
+                file_conn.set(session[request.environ['REMOTE_ADDR']+'username'],
+                              ",".join(storage_list)+",")
+                return render_template("Confirmation.html",type_of_con="Operation Successfully Done.",
+                                       msg="Go to Dashboard")
+            else:
+                storage_di = dict()
+                for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+                    storage_di[item.split("\\")[-1]] = cal_size(item)
+                return render_template("ShowStorage.html",storage_di=storage_di)
+    else:
+        return render_template("Login.html")
 
 @app.route("/email",methods=["GET","POST"])
 def send_email_data():
-    if request.method == "POST":
-        mail_files = request.form.getlist('sh_fi')
-        for index in range(0,len(mail_files)):
-            mail_files[index] = "Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+mail_files[index]
-        send_mail_multiple(mail_files,
-                           e_conn.get(session[request.environ['REMOTE_ADDR']+'username']),
-                           session[request.environ['REMOTE_ADDR'] + 'username'])
-        return "Successfully Sended to your MailBox"
-
+    if request.environ['REMOTE_ADDR']+'username' in session:
+        if request.method == "POST":
+            mail_files = request.form.getlist('sh_fi')
+            if (len(mail_files) > 0):
+                for index in range(0,len(mail_files)):
+                    mail_files[index] = "Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+mail_files[index]
+                send_mail_multiple(mail_files,
+                                   e_conn.get(session[request.environ['REMOTE_ADDR']+'username']),
+                                   session[request.environ['REMOTE_ADDR'] + 'username'])
+                return render_template("Confirmation.html", type_of_con="File Successfully Uploaded",
+                                   return_url="Login", msg="Successfully Sended to your MailBox")
+            else:
+                storage_di = dict()
+                for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+                    storage_di[item.split("\\")[-1]] = cal_size(item)
+                return render_template("ShowStorage.html", storage_di=storage_di)
+    else:
+        return render_template("Login.html")
 
 
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("ImageDisplay.html",name="404-snake.png"),404
+
+
+@app.route("/test",methods=["GET","POST"])
+def test_admin():
+        if request.method == "GET":
+            return """<html> 
+            <body>
+            <form method='post'>
+            <input type="password" name="password"/>
+            <input type="submit" value="back to dashboard" />
+            </form>
+            </body>
+            </html>"""
+        elif request.method == "POST":
+            if request.form["password"] == "admin's password" and "Mozilla" in request.headers['User-Agent']:
+                return str(request.headers['User-Agent'])
+            else:
+                return render_template("Login.html")

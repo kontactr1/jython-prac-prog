@@ -17,7 +17,7 @@ def send_mail_multiple(list_of_files,email,user_name):
     msg["To"] = emailto
     msg["Subject"] = user_name+" Your Files"
     msg.preamble = user_name+" Your Files"
-    msg["Text"] = "Files :- "
+    msg.attach(MIMEText("Your Files:- "))
 
     for fileToSend in list_of_files:
         ctype, encoding = mimetypes.guess_type(fileToSend)  # 1
@@ -45,7 +45,7 @@ def send_mail_multiple(list_of_files,email,user_name):
             attachment.set_payload(fp.read())
             fp.close()
             encoders.encode_base64(attachment)  # 1
-        attachment.add_header("Content-Disposition", "attachment", filename=fileToSend)  # 1
+        attachment.add_header("Content-Disposition", "attachment", filename=fileToSend.split("\\")[-1])  # 1
         msg.attach(attachment)  # 1
 
     server = smtplib.SMTP_SSL("smtp.gmail.com")
