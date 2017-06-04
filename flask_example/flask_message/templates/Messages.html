@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}'s chatbox</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Sender</th>
+            <th>Message</th>
+            <th>Time</th>
+        </tr>
+    {%- for item in msg -%}
+        <tr>
+            <td>hello</td>
+        <td>{{ item }}</td>
+        <td>{{ item }}</td>
+        <td>{{ item }}</td>
+            </tr>
+    {%- endfor -%}
+    </table>
+</body>
+</html>

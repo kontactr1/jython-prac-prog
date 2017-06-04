@@ -6,8 +6,24 @@ from flask import render_template
 from flask import request
 from flask import session
 from flask import url_for
-
+from flask import g
 from __init__ import app
+
+DATABASE = "users_data"
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+
 
 #------------------------------------------
 #database - users
@@ -27,7 +43,8 @@ user_pass = redis.StrictRedis(db=5, charset="utf-8", decode_responses=True)
 user_email = redis.StrictRedis(db=6, charset="utf-8", decode_responses=True)
 user_friends = redis.StrictRedis(db=7, charset="utf-8", decode_responses=True)
 user_req = redis.StrictRedis(db=8, charset="utf-8", decode_responses=True)
-users_msg = sqlite3.connect("users_data",check_same_thread=False)
+
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -134,6 +151,7 @@ def register():
 
 @app.route("/register/validate", methods=["GET", "POST"])
 def next_step():
+    users_msg = sqlite3.connect("users_data", check_same_thread=False,timeout=10.0)
     if request.environ['REMOTE_ADDR'] + 'username' in session:
         return render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
     else:
@@ -164,9 +182,11 @@ def next_step():
                     #                    os.mkdir("Data\\"+session[request.environ['REMOTE_ADDR']+'temp_session_user'])
                     user_friends.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'],"")
                     user_req.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'], "")
-                    users_msg.cursor().execute("CREATE TABLE "+session[request.environ['REMOTE_ADDR'] + 'temp_session_user']+"(message text, sender text, time date)")
-
-
+                    get_conn = get_db()
+                    get_cur = get_conn.cursor()
+                    get_cur.execute("CREATE TABLE "+session[request.environ['REMOTE_ADDR'] + 'temp_session_user']+"(message text, sender text, time date)")
+                    get_conn.commit()
+                    get_conn.close()
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_user')
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_email')
 
@@ -209,6 +229,8 @@ def find_Friend(title):
             if "" in get_req:
                 get_req.remove("")
             return render_template("ReqFriend.html",storage_di=get_req,title="Req for you: ")
+        elif title  == "show Friends":
+            return render_template("ShowFriends.html",storage_di=user_friends.get(session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(","))
         else:
             return str(None)
     elif request.method == "POST":
@@ -287,6 +309,35 @@ def cal_size(file_name):
     if os.path.isfile(file_name):
         file_info = os.stat(file_name)
         return convert_bytes(file_info.st_size)
+
+@app.route("/ChatFriend",methods=["GET","POST"])
+def ChatFriend():
+
+    if request.method == "GET":
+        #user_msg = sqlite3.connect("users_data",check_same_thread=False,timeout=10.0)
+        db_c = get_db()
+        db_cu = db_c.cursor()
+        #return str(db_cu.__str__()+"hello world")
+        user_name = (request.args['button'])[10:]
+        #msg_dr = users_msg.cursor()
+        #msg_dr_c = msg_dr.execute("SELECT * FROM user1")
+        from datetime import datetime
+        l = []
+        for data in db_cu.execute("SELECT * FROM user1").fetchall():
+            return "True"
+            l.append("True")
+        return str(l)
+
+        return "Done"
+        return render_template("Messages.html",
+
+                               title = user_name
+
+                               )
+
+
+
+
 
 
 @app.errorhandler(404)
