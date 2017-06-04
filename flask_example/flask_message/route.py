@@ -196,27 +196,61 @@ def next_step():
             #    return render_template("Dashboard.html",name=session[request.environ['REMOTE_ADDR']+'username'])
 
 
-@app.route("/friends",methods=["GET","POST"])
-def friend():
-    #return "True"
+@app.route("/<title>",methods=["GET","POST"])
+def find_Friend(title):
     if request.method == "GET":
-        return render_template("AddFriend.html",storage_di = [],val="",title="")
+        if title == 'Add Friends':
+            return render_template("AddFriend.html",storage_di = [],val="",title="")
+        elif title == 'Req Friends':
+            get_req = user_req.get(session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(",")
+            if "" in get_req:
+                get_req.remove("")
+            return render_template("ReqFriend.html",storage_di=get_req,title="Req for you: ")
+        else:
+            return str(None)
     elif request.method == "POST":
-        search_text = request.form["search_item"]
-        add_friend_list = request.form.getlist("ad_fr_list")
-        storage_di = dict()
-        if(len(add_friend_list) > 0):
-            for friend_list in add_friend_list:
-                user_req.append(session[request.environ['REMOTE_ADDR'] + 'username'],friend_list)
-        get_friend = user_friends.get(session[request.environ['REMOTE_ADDR'] + 'username'])
-        get_req = user_req.get(session[request.environ['REMOTE_ADDR'] + 'username'])
-        for friend_u in user_pass.keys(pattern=search_text+"*"):
-            if not (friend_u in get_friend or friend_u in get_req):
-                storage_di[friend_u] = "Send Request"
-        del storage_di[session[request.environ['REMOTE_ADDR'] + 'username']]
-        return render_template("AddFriend.html", storage_di=storage_di,val=search_text,title="Add Friend:- ")
+        if title == 'Add Friends':
+            search_text = request.form["search_item"]
+            add_friend_list = request.form.getlist("ad_fr_list")
+            storage_di = dict()
+            if(len(add_friend_list) > 0):
+                for friend_list in add_friend_list:
+                    user_req.append(friend_list,session[request.environ['REMOTE_ADDR'] + 'username']+",")
+            temp_user = session[request.environ['REMOTE_ADDR'] + 'username']
+            for friend_u in user_pass.keys(pattern=search_text+"*"):
+                if temp_user not in user_req.get(friend_u ) \
+                    and friend_u not in user_req.get(temp_user) \
+                    and  friend_u not in user_friends.get(temp_user):
+                    storage_di[friend_u] = "Send Request"
+            del storage_di[session[request.environ['REMOTE_ADDR'] + 'username']]
+            return render_template("AddFriend.html", storage_di=storage_di,val=search_text,title="Add Friend:- ")
+        elif title == 'Req Friends':
+            req_list = user_req.get(session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(",")
+            temp_del_list = []
+
+            for item in req_list:
+                li_fri = request.form["rad_li_"+item]
+                if li_fri == "Acc":
+                    user_friends.append(session[request.environ['REMOTE_ADDR'] + 'username'],item+",")
+                    user_friends.append(item,session[request.environ['REMOTE_ADDR'] + 'username']+ ",")
+                    temp_del_list.append(item)
+                elif li_fri == "Rej":
+                    temp_del_list.append(item)
+                else:
+                    pass
+            for item in temp_del_list:
+                req_list.remove(item)
+            #map(lambda x:req_list.remove(x),temp_del_list)
+            user_req.set(session[request.environ['REMOTE_ADDR'] + 'username'],",".join(req_list) + ",")
+            #return str(True)
+            if "" in req_list:
+                req_list.remove("")
+            return render_template("ReqFriend.html",storage_di=req_list,title="Req for you: ")
     else:
         return render_template("ImageDisplay.html")
+
+
+
 
 
 @app.route("/logout", methods=["GET", "POST"])
