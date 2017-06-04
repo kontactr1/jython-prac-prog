@@ -1,9 +1,7 @@
 import sqlite3
 
 
-users = sqlite3.connect("users").cursor()
-message = sqlite3.connect("message").cursor()
+users = sqlite3.connect("users_data")
 
-users.execute("CREATE TABLE USER(")
-
+users.close()
 

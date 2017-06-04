@@ -27,7 +27,7 @@ user_pass = redis.StrictRedis(db=5, charset="utf-8", decode_responses=True)
 user_email = redis.StrictRedis(db=6, charset="utf-8", decode_responses=True)
 user_friends = redis.StrictRedis(db=7, charset="utf-8", decode_responses=True)
 user_req = redis.StrictRedis(db=8, charset="utf-8", decode_responses=True)
-
+users_msg = sqlite3.connect("users_data",check_same_thread=False)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -164,6 +164,9 @@ def next_step():
                     #                    os.mkdir("Data\\"+session[request.environ['REMOTE_ADDR']+'temp_session_user'])
                     user_friends.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'],"")
                     user_req.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'], "")
+                    users_msg.cursor().execute("CREATE TABLE "+session[request.environ['REMOTE_ADDR'] + 'temp_session_user']+"(message text, sender text, time date)")
+
+
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_user')
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_email')
 
