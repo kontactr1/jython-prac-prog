@@ -363,7 +363,7 @@ def messages(title):
             request.environ['REMOTE_ADDR'] + 'username'] + "','" + str(date) + "')")
         db_c.commit()
         close_connection(Exception)
-        data1.append((text_area_resp,title,str(date)))
+        data1.append((text_area_resp,session[request.environ['REMOTE_ADDR'] + 'username'],str(date)))
     return render_template("Messages.html",
                            msg=data1,
                            title=title
