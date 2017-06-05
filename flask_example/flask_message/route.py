@@ -320,9 +320,17 @@ def ChatFriend():
 
         user_name = (request.args['button'])[10:]
         data1 = db_cu.execute("SELECT * FROM " + session[
-            request.environ['REMOTE_ADDR'] + 'username'] + " WHERE sender = '" + user_name + "'")
-
+            request.environ[
+                'REMOTE_ADDR'] + 'username'] + " WHERE sender = '" + user_name + "' UNION ALL " + "SELECT * FROM " + user_name + "  WHERE sender = '" +
+                              session[
+                                  request.environ['REMOTE_ADDR'] + 'username'] + "' ORDER BY time ASC")
+        #data1 = db_cu.execute("SELECT * FROM " + session[
+        #    request.environ['REMOTE_ADDR'] + 'username'] + " WHERE sender = '" + user_name + "'")
+        #
         data1 = data1.fetchall()
+        #data2 = db_cu.execute("SELECT * FROM "+user_name+"  WHERE sender = '" +session[request.environ['REMOTE_ADDR'] + 'username'] +"'")
+        #data2 = data2.fetchall()
+        #data1.extend(data2)
         close_connection(Exception)
         assert isinstance(user_name, str)
         return render_template("Messages.html",
@@ -336,9 +344,15 @@ def messages(title):
     date = datetime.now()
     db_c = get_db()
     db_cu = db_c.cursor()
+
     data1 = db_cu.execute("SELECT * FROM " + session[
-        request.environ['REMOTE_ADDR'] + 'username'] + " WHERE sender = '" + title + "'")
+        request.environ['REMOTE_ADDR'] + 'username'] + " WHERE sender = '" + title + "' UNION ALL "+"SELECT * FROM " + title + "  WHERE sender = '" + session[
+        request.environ['REMOTE_ADDR'] + 'username'] + "' ORDER BY time ASC")
     data1 = data1.fetchall()
+    #data2 = db_cu.execute("SELECT * FROM " + title + "  WHERE sender = '" + session[
+    #    request.environ['REMOTE_ADDR'] + 'username'] + "'")
+    #data2 = data2.fetchall()
+    #data1.extend(data2)
     if request.method == "GET":
 
         close_connection(Exception)
@@ -349,6 +363,7 @@ def messages(title):
             request.environ['REMOTE_ADDR'] + 'username'] + "','" + str(date) + "')")
         db_c.commit()
         close_connection(Exception)
+        data1.append((text_area_resp,title,str(date)))
     return render_template("Messages.html",
                            msg=data1,
                            title=title
