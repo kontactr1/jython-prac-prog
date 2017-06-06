@@ -216,7 +216,12 @@ def logout():
 def upload():
     if request.environ['REMOTE_ADDR']+'username' in session:
         if request.method == "GET":
-            return render_template("Upload.html")
+            size = 0
+            storage_di = dict()
+            for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+                storage_di[item.split("\\")[-1]] = cal_size(item)
+                size += os.stat(item).st_size
+            return render_template("Upload.html",size=1024*1024*1024 - size)
         elif request.method == "POST":
             file = request.files["file"]
             if (len(""+str(file.filename)+"a") <= 1):
