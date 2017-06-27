@@ -7,7 +7,7 @@ def get_para():
 
 def plot_graph():
     x,y = get_para()
-    plt.hist(x,bins=y,histtype="bar",label=input("Label-Name: "),cumulative=True,rwidth=0.8)
+    plt.hist(y,bins=x,histtype="bar",label=input("Label-Name: "),cumulative=True,rwidth=0.8)
     plt.xlabel("X-Axis Name: ")
     plt.ylabel("Y-Axix Name: ")
     plt.title("Title: ")
