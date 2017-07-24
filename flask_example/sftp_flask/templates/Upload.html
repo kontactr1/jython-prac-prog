@@ -25,7 +25,8 @@ function showFileSize() {
     // at all.)
     if (!window.FileReader) {
         alert("The file API isn't supported on this browser yet.");
-        return;
+        alert("service must be provided your files are validate at server side :- work remaining currently return is false after complete work it must be true");
+        return false;
     }
 
     input = document.getElementById('file');
