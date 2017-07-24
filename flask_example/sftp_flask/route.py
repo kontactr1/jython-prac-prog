@@ -86,7 +86,7 @@ def send_mail(email):
     session[request.environ['REMOTE_ADDR']+'_'+'code'] = str(code_generate())
     msg_part = MIMEText("Activation Code - " + session[request.environ['REMOTE_ADDR']+'_'+'code'])
     msg.attach(msg_part)
-    s.login("ch.email.456@gmail.com", "ch1234567890")
+    s.login("ch.email.456@gmail.com", "ch.email.456")
     s.sendmail("ch.email.456@gmail.com", email, msg.as_string())
     s.quit()
 
@@ -116,7 +116,7 @@ def register():
                         session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_password')
                     if (request.environ['REMOTE_ADDR'] + 'temp_session_email' in session):
                         session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_email')
-                    return "Sorry InternalError"+render_template("Register.html")
+                    return str(e)+render_template("Register.html")
 
                 return """
                 <html><body><div>
@@ -223,17 +223,20 @@ def upload():
                 size += os.stat(item).st_size
             return render_template("Upload.html",size=1024*1024*1024 - size)
         elif request.method == "POST":
-            file = request.files["file"]
-            if (len(""+str(file.filename)+"a") <= 1):
-                return render_template("Upload.html")
+            file1 = request.files.getlist("file")
+
+            for file in file1:
+                if (len(""+str(file.filename)+"a") <= 1):
+                    return render_template("Upload.html")
+                else:
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join("Data\\"+
+                                           session[request.environ['REMOTE_ADDR']+'username'], filename))
+                    if str(filename) not in file_conn.get(session[request.environ['REMOTE_ADDR']+'username']):
+                        file_conn.append(session[request.environ['REMOTE_ADDR']+'username'],str(filename)+",")
             else:
-                filename = secure_filename(file.filename)
-                file.save(os.path.join("Data\\"+
-                                       session[request.environ['REMOTE_ADDR']+'username'], filename))
-                if str(filename) not in file_conn.get(session[request.environ['REMOTE_ADDR']+'username']):
-                    file_conn.append(session[request.environ['REMOTE_ADDR']+'username'],str(filename)+",")
                 return render_template("Confirmation.html",type_of_con="File Successfully Uploaded",
-                                       return_url="Login",msg="Go to Dashboard")
+                                           return_url="Login",msg="Go to Dashboard")
             
     else:
         return render_template("Login.html")

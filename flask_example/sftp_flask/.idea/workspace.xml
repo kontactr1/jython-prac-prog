@@ -22,33 +22,33 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Upload.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Upload.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/templates/Upload.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="24" column="13" lean-forward="false" selection-start-line="24" selection-start-column="13" selection-end-line="24" selection-end-column="13" />
+            <state relative-caret-position="377">
+              <caret line="58" column="9" lean-forward="true" selection-start-line="58" selection-start-column="9" selection-end-line="58" selection-end-column="9" />
               <folding>
-                <element signature="e#259#265#0" expanded="true" />
-                <element signature="e#265#271#0" expanded="true" />
-                <element signature="e#271#277#0" expanded="true" />
-                <element signature="e#346#352#0" expanded="true" />
-                <element signature="e#352#358#0" expanded="true" />
-                <element signature="e#358#364#0" expanded="true" />
-                <element signature="e#364#370#0" expanded="true" />
-                <element signature="e#435#441#0" expanded="true" />
-                <element signature="e#441#447#0" expanded="true" />
-                <element signature="e#447#453#0" expanded="true" />
-                <element signature="e#453#459#0" expanded="true" />
+                <element signature="e#293#299#0" expanded="true" />
+                <element signature="e#299#305#0" expanded="true" />
+                <element signature="e#305#311#0" expanded="true" />
+                <element signature="e#399#405#0" expanded="true" />
+                <element signature="e#405#411#0" expanded="true" />
+                <element signature="e#411#417#0" expanded="true" />
+                <element signature="e#417#423#0" expanded="true" />
+                <element signature="e#488#494#0" expanded="true" />
+                <element signature="e#494#500#0" expanded="true" />
+                <element signature="e#500#506#0" expanded="true" />
+                <element signature="e#506#512#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="route.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="route.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/route.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="229" column="56" lean-forward="false" selection-start-line="229" selection-start-column="56" selection-end-line="229" selection-end-column="56" />
+            <state relative-caret-position="102">
+              <caret line="223" column="58" lean-forward="false" selection-start-line="223" selection-start-column="54" selection-end-line="223" selection-end-column="58" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -69,7 +69,7 @@
       <file leaf-file-name="SendMail.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SendMail.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
+            <state relative-caret-position="17">
               <caret line="21" column="22" lean-forward="false" selection-start-line="21" selection-start-column="22" selection-end-line="21" selection-end-column="22" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
@@ -161,8 +161,8 @@
         <option value="$PROJECT_DIR$/SendMail.py" />
         <option value="$PROJECT_DIR$/templates/FilesDisplay.html" />
         <option value="$PROJECT_DIR$/templates/ShowStorage.html" />
-        <option value="$PROJECT_DIR$/templates/Upload.html" />
         <option value="$PROJECT_DIR$/route.py" />
+        <option value="$PROJECT_DIR$/templates/Upload.html" />
       </list>
     </option>
   </component>
@@ -187,7 +187,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -230,6 +229,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
       <pane id="Scope" />
     </panes>
   </component>
@@ -353,7 +353,7 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24304539" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24304539" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -430,17 +430,17 @@
         <state relative-caret-position="119">
           <caret line="7" column="8" lean-forward="false" selection-start-line="7" selection-start-column="8" selection-end-line="7" selection-end-column="8" />
           <folding>
-            <element signature="e#259#265#0" expanded="true" />
-            <element signature="e#265#271#0" expanded="true" />
-            <element signature="e#271#277#0" expanded="true" />
-            <element signature="e#346#352#0" expanded="true" />
-            <element signature="e#352#358#0" expanded="true" />
-            <element signature="e#358#364#0" expanded="true" />
-            <element signature="e#364#370#0" expanded="true" />
-            <element signature="e#435#441#0" expanded="true" />
-            <element signature="e#441#447#0" expanded="true" />
-            <element signature="e#447#453#0" expanded="true" />
-            <element signature="e#453#459#0" expanded="true" />
+            <element signature="e#293#299#0" expanded="true" />
+            <element signature="e#299#305#0" expanded="true" />
+            <element signature="e#305#311#0" expanded="true" />
+            <element signature="e#399#405#0" expanded="true" />
+            <element signature="e#405#411#0" expanded="true" />
+            <element signature="e#411#417#0" expanded="true" />
+            <element signature="e#417#423#0" expanded="true" />
+            <element signature="e#488#494#0" expanded="true" />
+            <element signature="e#494#500#0" expanded="true" />
+            <element signature="e#500#506#0" expanded="true" />
+            <element signature="e#506#512#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -526,17 +526,17 @@
         <state relative-caret-position="119">
           <caret line="7" column="8" lean-forward="false" selection-start-line="7" selection-start-column="8" selection-end-line="7" selection-end-column="8" />
           <folding>
-            <element signature="e#259#265#0" expanded="true" />
-            <element signature="e#265#271#0" expanded="true" />
-            <element signature="e#271#277#0" expanded="true" />
-            <element signature="e#346#352#0" expanded="true" />
-            <element signature="e#352#358#0" expanded="true" />
-            <element signature="e#358#364#0" expanded="true" />
-            <element signature="e#364#370#0" expanded="true" />
-            <element signature="e#435#441#0" expanded="true" />
-            <element signature="e#441#447#0" expanded="true" />
-            <element signature="e#447#453#0" expanded="true" />
-            <element signature="e#453#459#0" expanded="true" />
+            <element signature="e#293#299#0" expanded="true" />
+            <element signature="e#299#305#0" expanded="true" />
+            <element signature="e#305#311#0" expanded="true" />
+            <element signature="e#399#405#0" expanded="true" />
+            <element signature="e#405#411#0" expanded="true" />
+            <element signature="e#411#417#0" expanded="true" />
+            <element signature="e#417#423#0" expanded="true" />
+            <element signature="e#488#494#0" expanded="true" />
+            <element signature="e#494#500#0" expanded="true" />
+            <element signature="e#500#506#0" expanded="true" />
+            <element signature="e#506#512#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -795,16 +795,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SendMail.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="21" column="22" lean-forward="false" selection-start-line="21" selection-start-column="22" selection-end-line="21" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/Confirmation.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -824,22 +814,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/Upload.html">
+    <entry file="file://$PROJECT_DIR$/SendMail.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="24" column="13" lean-forward="false" selection-start-line="24" selection-start-column="13" selection-end-line="24" selection-end-column="13" />
+        <state relative-caret-position="17">
+          <caret line="21" column="22" lean-forward="false" selection-start-line="21" selection-start-column="22" selection-end-line="21" selection-end-column="22" />
           <folding>
-            <element signature="e#259#265#0" expanded="true" />
-            <element signature="e#265#271#0" expanded="true" />
-            <element signature="e#271#277#0" expanded="true" />
-            <element signature="e#346#352#0" expanded="true" />
-            <element signature="e#352#358#0" expanded="true" />
-            <element signature="e#358#364#0" expanded="true" />
-            <element signature="e#364#370#0" expanded="true" />
-            <element signature="e#435#441#0" expanded="true" />
-            <element signature="e#441#447#0" expanded="true" />
-            <element signature="e#447#453#0" expanded="true" />
-            <element signature="e#453#459#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -854,10 +834,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/route.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="229" column="56" lean-forward="false" selection-start-line="229" selection-start-column="56" selection-end-line="229" selection-end-column="56" />
+        <state relative-caret-position="102">
+          <caret line="223" column="58" lean-forward="false" selection-start-line="223" selection-start-column="54" selection-end-line="223" selection-end-column="58" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/Upload.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="377">
+          <caret line="58" column="9" lean-forward="true" selection-start-line="58" selection-start-column="9" selection-end-line="58" selection-end-column="9" />
+          <folding>
+            <element signature="e#293#299#0" expanded="true" />
+            <element signature="e#299#305#0" expanded="true" />
+            <element signature="e#305#311#0" expanded="true" />
+            <element signature="e#399#405#0" expanded="true" />
+            <element signature="e#405#411#0" expanded="true" />
+            <element signature="e#411#417#0" expanded="true" />
+            <element signature="e#417#423#0" expanded="true" />
+            <element signature="e#488#494#0" expanded="true" />
+            <element signature="e#494#500#0" expanded="true" />
+            <element signature="e#500#506#0" expanded="true" />
+            <element signature="e#506#512#0" expanded="true" />
           </folding>
         </state>
       </provider>
