@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, current_app, send_from_directory
 from flask import session
 from flask import render_template
 from flask import url_for
@@ -165,7 +165,12 @@ def next_step():
                     session.pop(request.environ['REMOTE_ADDR']+'temp_session_user')
                     session.pop(request.environ['REMOTE_ADDR']+'temp_session_email')
 
-                    return "Registration Successfully done  <br/> You can upload your file"
+                    return "Registration Successfully done  <br/> You can upload your file" + """
+                <html><body>
+                <form method='get' action='"""+url_for('login')+"""'>
+                <input type='submit' value='Goto Login' /></form>
+                </body></html>
+            """
                 else:
                     return """
                             <html><body>
@@ -244,8 +249,10 @@ def upload():
 @app.route("/data")
 def show_files():
     if request.environ['REMOTE_ADDR'] + 'username' in session:
+
         return render_template("FilesDisplay.html",
                            name = session[request.environ['REMOTE_ADDR']+'username'],
+                            name1 = session[request.environ['REMOTE_ADDR']+'username'],
                            file_list =  file_conn.get(
                                session[request.environ['REMOTE_ADDR']+'username']).strip(",").split(","),
                             msg="Go to Dashboard"
@@ -302,7 +309,7 @@ def send_email_data():
     if request.environ['REMOTE_ADDR']+'username' in session:
         if request.method == "POST":
             mail_files = request.form.getlist('sh_fi')
-            if (len(mail_files) > 0):
+            if (mail_files != None and len(mail_files) > 0):
                 for index in range(0,len(mail_files)):
                     mail_files[index] = "Data\\"+session[request.environ['REMOTE_ADDR']+'username']+"\\"+mail_files[index]
                 send_mail_multiple(mail_files,
@@ -312,11 +319,56 @@ def send_email_data():
                                    return_url="Login", msg="Successfully Sended to your MailBox")
             else:
                 storage_di = dict()
+                size = 0
+                for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+                    storage_di[item.split("\\")[-1]] = cal_size(item)
+                    size += os.stat(item).st_size
+                return render_template("ShowStorage.html", storage_di=storage_di, total_size=size)
+    else:
+        return render_template("Login.html")
+
+@app.route('/download/<dirc>/<filename>' ,methods=['GET'])
+def download(dirc , filename):
+    uploads = os.path.join(current_app.root_path, "Data" , dirc)
+    return send_from_directory(directory=uploads, filename=filename)
+
+
+@app.route('/gen_pub_url',methods=["post"])
+def get_pub_url():
+    if request.environ['REMOTE_ADDR'] + 'username' in session:
+        if request.method == "POST":
+            mail_files = request.form.getlist('sh_fi')
+            if (mail_files!= None and len(mail_files) > 0):
+                url = session[request.environ['REMOTE_ADDR'] + 'username'] + "/" + "files="
+                url +=  ";".join(mail_files)
+                return """
+                    <html>
+                    <body><h1>Your Public URL: </h1></body>
+                    <h3>/public/
+                """+url+"""</h3></body></html>"""
+            else:
+                storage_di = dict()
                 for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
                     storage_di[item.split("\\")[-1]] = cal_size(item)
                 return render_template("ShowStorage.html", storage_di=storage_di)
+
     else:
         return render_template("Login.html")
+
+@app.route('/public/<url>/<data>',methods=['GET'])
+def public(url,data):
+    #return str(len(url))
+    if request.environ['REMOTE_ADDR'] + 'username' in session:
+        return render_template("FilesDisplay.html",
+                               name="Public Data",
+                               file_list=data.strip(" ")[6:].split(";"),
+                               msg="Go to Dashboard",
+                               name1 = url.strip(" ")
+                               )
+    else:
+        return render_template("Login.html")
+
+
 
 
 @app.errorhandler(404)

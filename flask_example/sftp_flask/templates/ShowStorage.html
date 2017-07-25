@@ -30,7 +30,16 @@
 <div id="piechart_3d" style="width: 900px; height: 500px;"></div>
 <form method="post">
  <table border="1">
-
+<tr>
+    <th>FileName:
+    </th>
+    <th>
+        Size:
+    </th>
+    <th>
+        Get Email / Public Share:
+    </th>
+</tr>
 {%- for item in storage_di -%}
      <tr>
          <td>{{ item }}</td> <td>{{storage_di[item]}}</td><td><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
@@ -40,6 +49,7 @@
   </table><br /><br />
     <input type="submit" value="Delete Files" /><br /><br/>
     <input type="submit" value="get in email"  formaction="{{url_for('send_email_data')}}" formmethod="POST"/><br /><br />
+    <input type="submit" value="get public" formaction="{{url_for('get_pub_url')}}" formmethod="POST" ><br /><br />
     <h2><a href="{{url_for('login')}}">Go To Dashboard</a></h2>
 </form>
 </body>

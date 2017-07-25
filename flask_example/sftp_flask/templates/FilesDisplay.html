@@ -8,7 +8,8 @@
 <h2>Files: </h2>
 <ol >
 {%- for item in file_list -%}
-     <li>{{ item }}</li>
+    <a href="{{ url_for('download', dirc=name1 , filename=item) }}"><li>{{ item }}</li></a>
+
     {%- endfor -%}
 </ol>
 <h2><a href="{{url_for('login')}}">{{msg}}</a></h2>
