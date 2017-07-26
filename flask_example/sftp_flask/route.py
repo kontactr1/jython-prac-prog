@@ -397,7 +397,7 @@ def goog_settings(data_obj):
                 session[request.environ['REMOTE_ADDR'] + 'goog_session'] = "true"
                 return redirect(url_for('login'))
         except Exception as e:
-          return render_template("Login.html")
+            return render_template("Login.html")
     else:
         return render_template("Login.html")
 
