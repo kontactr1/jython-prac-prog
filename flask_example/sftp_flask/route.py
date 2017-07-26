@@ -204,6 +204,7 @@ def logout():
         if request.method == "POST":
             session.pop(request.environ['REMOTE_ADDR'] + 'username', None)
             if request.environ['REMOTE_ADDR'] + 'goog_session' in session:
+                session.pop(request.environ['REMOTE_ADDR'] + 'goog_session')
                 return redirect(url_for('logout_google'))
             return """
             <html><body>
@@ -214,7 +215,7 @@ def logout():
         else:
             return render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
     else:
-        return render_template("Login.html")
+        return redirect(url_for('login'))
 
 
 @app.route("/upload", methods=["GET", "POST"])
@@ -394,12 +395,16 @@ def goog_settings(data_obj):
                 os.mkdir("Data\\" + temp[0])
                 file_conn.set(temp[0], "")
                 session[request.environ['REMOTE_ADDR'] + 'username'] = temp[0]
-                session[request.environ['REMOTE_ADDR'] + 'goog_session'] = "true"
                 return redirect(url_for('login'))
         except Exception as e:
-            return render_template("Login.html")
+            return str(e)
     else:
-        return render_template("Login.html")
+        return redirect(url_for('login'))
+
+
+@app.route("/temp/redirect")
+def temp_redirect():
+    return redirect('goog_drive_auth', session[request.environ['REMOTE_ADDR'] + 'username'])
 
 
 @app.errorhandler(404)
@@ -419,7 +424,8 @@ def test_admin():
             </body>
             </html>"""
     elif request.method == "POST":
-        if request.form["password"] == "admin's password" and "Mozilla" in request.headers['User-Agent']:
+        if request.form["password"] == "password" and "Mozilla" in request.headers['User-Agent']:
+            #return str(session[request.environ['REMOTE_ADDR'] + 'goog_session'])
             return str(request.headers['User-Agent'])
         else:
             return render_template("Login.html")

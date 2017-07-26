@@ -38,6 +38,7 @@ def log_google():
             if goog_data['name']:
                 name = goog_data['name']
             data = name+"[]"+email+"[]"+goog_data['id']
+            session[request.environ['REMOTE_ADDR'] + 'goog_session'] = "true"
             return redirect(url_for('goog_settings', data_obj=data))
         return redirect(url_for('check_google'))
 
@@ -50,7 +51,7 @@ def check_google():
 @app.route('/logout_google')
 def logout_google():
     session.pop('google_token', None)
-    return redirect(url_for('login'))
+    return redirect(url_for('logout'))
 
 
 @app.route('/check_google/authorized')

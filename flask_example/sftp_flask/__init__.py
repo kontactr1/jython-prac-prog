@@ -10,5 +10,7 @@ from route import *
 
 
 if __name__ == "__main__":
+    if os.path.exists('client_id.json') == False:
+        print('Client secrets file (client_id.json) not found in the app path.')
     app.run(debug=True)
 
