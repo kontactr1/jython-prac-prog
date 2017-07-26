@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ name }}</title>
+</head>
+<body>
+<form method="post">
+ <table border="1">
+<tr>
+    <th>FileName:
+    </th>
+    <th>
+        Size:
+    </th>
+    <th>
+        Upload To {{name}} Drive
+    </th>
+</tr>
+{%- for item in storage_di -%}
+     <tr>
+         <td>{{ item }}</td> <td>{{storage_di[item]}}</td><td><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
+      </tr>
+    {%- endfor -%}
+     </table>
+  <br /><br />
+    <input type="submit" value="Go To Procees"  formaction="{{url_for('upload_drive_files',name=name)}}" formmethod="POST"/><br /><br />
+</form>
+</body>
+</html>

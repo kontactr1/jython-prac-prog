@@ -10,11 +10,11 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-from flask import Flask, redirect, url_for, session, request, jsonify
+from flask import Flask, redirect, url_for, session, request, jsonify, render_template
 from __init__ import app
 
 
-@app.route('/goog_drive_auth/<name>',methods=['GET'])
+@app.route('/goog_drive_auth/<name>')
 def goog_drive_auth(name):
     credentials = get_credentials()
     if credentials == False:
@@ -22,16 +22,23 @@ def goog_drive_auth(name):
     elif credentials.access_token_expired:
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
-        print('now calling fetch')
-        #instead of root u will also give folder ID
-        all_files = fetch("'root' in parents and (mimeType = 'application/vnd.google-apps.folder' or mimeType != 'application/vnd.google-apps.folder')",
-                          sort='modifiedTime desc')
+        #return "Hello World"
+        return render_template("DriveTemp.html",Drive_name = "Google")
+
+
+        #####fetch code #############
+        #print('now calling fetch')
+        # instead of root u will also give folder ID
+        #all_files = fetch("'root' in parents and (mimeType = 'application/vnd.google-apps.folder' or mimeType != 'application/vnd.google-apps.folder')",
+        #                  sort='modifiedTime desc')
         #all_files += fetch("'root' in parents and mimeType != 'application/vnd.google-apps.folder'",
          #                 sort='modifiedTime desc')
-        s = ""
-        for file in all_files:
-            s += "%s, %s<br>" % (file['name'], file['id'])
-        return s
+        #s = ""
+        #for file in all_files:
+        #    s += "%s, %s<br>" % (file['name'], file['id'])
+        #return s
+
+        #########fetch code end#############33
 
 
 @app.route('/oauth2callback')

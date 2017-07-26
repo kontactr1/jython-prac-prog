@@ -1,11 +1,12 @@
 import os
+import urllib.request
 from glob import glob
 
 import redis
 from flask import current_app, send_from_directory
 from flask import render_template
 from werkzeug.utils import secure_filename
-
+import json
 from __init__ import app
 
 """import smtplib
@@ -19,6 +20,10 @@ from email.mime.image import MIMEImage
 from email.mime.text import MIMEText"""
 from SendMail import send_mail_multiple
 from GoogLog import *
+from GoogDrive import *
+from FileType import *
+from urllib3.request import RequestMethods
+import urllib3
 
 # username_session = None
 # code = None
@@ -377,7 +382,7 @@ def public(url, data):
         return render_template("Login.html")
 
 
-@app.route('/goog_settings/<data_obj>')
+@app.route('/goog_settings/<data_obj>',methods=["GET"])
 def goog_settings(data_obj):
     # 0 - name , 1 - email
     if request.method == "GET":
@@ -388,6 +393,7 @@ def goog_settings(data_obj):
             if (temp[2] == r_conn.get(temp[0])):
                 session[request.environ['REMOTE_ADDR'] + 'username'] = temp[0]
                 # username_session  = username
+
                 return render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
             else:
                 r_conn.set(temp[0], temp[2])
@@ -401,6 +407,49 @@ def goog_settings(data_obj):
     else:
         return redirect(url_for('login'))
 
+
+def file_format(file_name,user_name):
+    return "Data\\"+user_name+"\\"+file_name
+
+@app.route("/<name>/upload_request",methods=["GET","POST"])
+def upload_drive_files(name):
+    if request.method == "GET":
+        storage_di = dict()
+        for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+            storage_di[item.split("\\")[-1]] = cal_size(item)
+        return render_template("DriveUploadFiles.html" , name=name , storage_di=storage_di)
+    if request.method == "POST":
+        if name == "Google":
+            upload_files = request.form.getlist('sh_fi')
+            if (upload_files != None and len(upload_files) > 0):
+                with open('Credentials\\'+session[request.environ['REMOTE_ADDR'] + 'username']+"credentials.json") as data_file:
+                    data = json.load(data_file)
+                for file in upload_files:
+                    attachment ,maintype = file_type(file_format(file,session[request.environ['REMOTE_ADDR'] + 'username']))
+                    req = urllib.request.Request(method="POST",
+                                                 headers={"User-Agent":"","Content-Type": maintype, "Content-Length": os.stat(
+                                                     file_format(file, session[
+                                                         request.environ['REMOTE_ADDR'] + 'username'])).st_size,
+                                                          "Authorization": data["access_token"]} ,
+                                                 url="https://www.googleapis.com/upload/drive/v3?uploadType=media HTTP/1.1",
+                                                 data=attachment.__bytes__()
+                                                 )
+                    resp = urllib.request.urlopen(req)
+                    #https = RequestMethods(headers={"Content-Type":maintype,"Content-Length":os.stat(file_format(file,session[request.environ['REMOTE_ADDR'] + 'username'])).st_size,
+                     #                                      "Authorization":data["access_token"]})
+                    #Resp = https.urlopen(method="POST",
+                     #                             url="https://www.googleapis.com/upload/drive/v3?uploadType=media",
+                     #                             body=attachment
+                     #                             )
+                    return "Hello World"
+
+
+
+
+
+@app.route("/<name>/download_request")
+def download_drive_files(name):
+    return "Down Done Gone"
 
 @app.route("/temp/redirect")
 def temp_redirect():

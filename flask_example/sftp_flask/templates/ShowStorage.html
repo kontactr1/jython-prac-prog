@@ -45,11 +45,13 @@
          <td>{{ item }}</td> <td>{{storage_di[item]}}</td><td><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
       </tr>
     {%- endfor -%}
-     <div id="piechart_.3d" style="width: 900px; height: 500px;"></div>
-  </table><br /><br />
+     </table>
+     <!--div id="piechart_.3d" style="width: 900px; height: 500px;"></div-->
+  <br /><br />
     <input type="submit" value="Delete Files" /><br /><br/>
     <input type="submit" value="get in email"  formaction="{{url_for('send_email_data')}}" formmethod="POST"/><br /><br />
     <input type="submit" value="get public" formaction="{{url_for('get_pub_url')}}" formmethod="POST" ><br /><br />
+
     <h2><a href="{{url_for('login')}}">Go To Dashboard</a></h2>
 </form>
 </body>
