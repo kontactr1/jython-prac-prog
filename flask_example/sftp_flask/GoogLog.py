@@ -4,7 +4,7 @@ from __init__ import app
 
 
 app.config['GOOGLE_ID'] = "ID"
-app.config['GOOGLE_SECRET'] = "SECRET_KEY"
+app.config['GOOGLE_SECRET'] = "S_KEY"
 app.debug = True
 app.secret_key = 'development'
 oauth = OAuth(app)

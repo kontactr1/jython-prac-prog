@@ -19,10 +19,12 @@ def file_type(fileToSend):
             fp = open(fileToSend)  # 1
             # Note: we should handle calculating the charset
             attachment = MIMEText(fp.read(), _subtype=subtype)  # 1
+            maintype = "text/plain"
             fp.close()  # 1
         elif maintype == "image":
             fp = open(fileToSend, "rb")
             attachment = MIMEImage(fp.read(), _subtype=subtype)
+            maintype = "image/jpeg"
             fp.close()
         elif maintype == "audio":
             fp = open(fileToSend, "rb")

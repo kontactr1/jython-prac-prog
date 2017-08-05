@@ -1,7 +1,7 @@
 import os
 import urllib.request
 from glob import glob
-
+import requests
 import redis
 from flask import current_app, send_from_directory
 from flask import render_template
@@ -31,6 +31,7 @@ r_conn = redis.StrictRedis(db=1, charset="utf-8", decode_responses=True)
 file_conn = redis.StrictRedis(db=2, charset="utf-8", decode_responses=True)
 e_conn = redis.StrictRedis(db=3, charset="utf-8", decode_responses=True)
 
+#print ("hello "+session)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -62,6 +63,7 @@ def login():
             else:
                 return render_template("Login.html")
     else:
+
         return render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
 
 
@@ -426,14 +428,44 @@ def upload_drive_files(name):
                     data = json.load(data_file)
                 for file in upload_files:
                     attachment ,maintype = file_type(file_format(file,session[request.environ['REMOTE_ADDR'] + 'username']))
-                    req = urllib.request.Request(method="POST",
+                    http = httplib2.Http()
+                    http = get_credentials().authorize(http)
+
+                    drive_service = build('drive', 'v3', http=http)
+
+                    media_body = MediaFileUpload('Data/'+session[request.environ['REMOTE_ADDR'] + 'username']+'/'+file, mimetype='text/plain', resumable=True)
+                    body = {
+                        'name' : file,
+                        'title': file,
+                        'description': 'A test document',
+                        'mimeType': maintype
+                    }
+
+                    file1 = drive_service.files().create(body=body, media_body=media_body).execute()
+                    #drive_service.files().create(media_body='pig.png', body={'name': 'pig'}).execute()
+                    return (str(file1))
+
+
+
+
+
+
+                    """r = requests.post(url="https://www.googleapis.com/upload/drive/v3?uploadType=media",
+                                        data=attachment.__bytes__(),
+                                      headers={"User-Agent": "", "Content-Type": str(maintype), "Content-Length": str(os.stat(
+                                          file_format(file, session[
+                                              request.environ['REMOTE_ADDR'] + 'username'])).st_size),
+                                               "Authorization": data["access_token"]}
+                                      )
+                    return (str(r.request))"""
+                    """ req = urllib.request.Request(method="POST",
                                                  headers={"User-Agent":"","Content-Type": maintype, "Content-Length": os.stat(
                                                      file_format(file, session[
                                                          request.environ['REMOTE_ADDR'] + 'username'])).st_size,
                                                           "Authorization": data["access_token"]} ,
                                                  url="https://www.googleapis.com/upload/drive/v3?uploadType=media HTTP/1.1",
                                                  data=attachment.__bytes__()
-                                                 )
+                                                 )"""
                     resp = urllib.request.urlopen(req)
                     #https = RequestMethods(headers={"Content-Type":maintype,"Content-Length":os.stat(file_format(file,session[request.environ['REMOTE_ADDR'] + 'username'])).st_size,
                      #                                      "Authorization":data["access_token"]})
@@ -449,7 +481,12 @@ def upload_drive_files(name):
 
 @app.route("/<name>/download_request")
 def download_drive_files(name):
-    return "Down Done Gone"
+     all_files = fetch("'root' in parents and (mimeType = 'application/vnd.google-apps.folder' or mimeType != 'application/vnd.google-apps.folder')",
+                          sort='modifiedTime desc')
+     s = ""
+     for file in all_files:
+         s += "%s, %s<br>" % (file['name'], file['id'])
+     return s
 
 @app.route("/temp/redirect")
 def temp_redirect():

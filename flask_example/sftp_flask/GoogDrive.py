@@ -6,6 +6,7 @@ import os
 import flask
 import httplib2
 from apiclient import discovery
+from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from oauth2client import client
 from oauth2client import tools
@@ -100,6 +101,22 @@ def download_drive_file(file_id, output_file , name=None):
         status, done = downloader.next_chunk()
     # print ("Download %d%%." % int(status.progress() * 100))
     fh.close()
+
+
+
+"""def upload():
+    file_metadata = {'name': 'photo.jpg'}
+    media = MediaFileUpload('files/photo.jpg',
+                            mimetype='image/jpeg')
+    file = drive_service.files().create(body=file_metadata,
+                                        media_body=media,
+                                        fields='id').execute()
+    print ('File ID: %s' % file.get('id'))"""
+
+
+
+
+
 
 
 # return fh
