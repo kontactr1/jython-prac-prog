@@ -40,7 +40,7 @@ def home():
         <body>
             <a href='""" + url_for("login") + """'>Login Page</a>
         </body>
-        </html>"""
+        </html>"""+str(request.user_agent)
     else:
 
         return render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
@@ -55,7 +55,10 @@ def login():
 
         elif (request.method == "POST"):
             username = request.form["username"]
+            #username = request.Username;
+
             password = request.form["password"]
+            #password = request.Password;
             if (password == r_conn.get(username)):
                 session[request.environ['REMOTE_ADDR'] + 'username'] = username
                 # username_session = username
