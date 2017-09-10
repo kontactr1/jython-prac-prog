@@ -19,5 +19,5 @@ class Thread_Class(Thread):
 			p.join()
 			print (self.no+" "+self.getName())
 
-#print (System.getProperties().list(System.out))	
+#print (System.getProperties().list(System.out))
 Thread_Class().start()
