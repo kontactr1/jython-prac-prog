@@ -8,6 +8,8 @@ from flask import render_template
 from werkzeug.utils import secure_filename
 import json
 from __init__ import app
+from datetime import datetime
+from decimal import *
 
 """import smtplib
 import mimetypes
@@ -30,6 +32,8 @@ import urllib3
 r_conn = redis.StrictRedis(db=1, charset="utf-8", decode_responses=True)
 file_conn = redis.StrictRedis(db=2, charset="utf-8", decode_responses=True)
 e_conn = redis.StrictRedis(db=3, charset="utf-8", decode_responses=True)
+folder_conn = redis.StrictRedis(db=11, charset="utf-8", decode_responses=True)
+session_conn = redis.StrictRedis(db=12,charset="utf-8", decode_responses=True)
 
 #print ("hello "+session)
 
@@ -60,9 +64,11 @@ def login():
             password = request.form["password"]
             #password = request.Password;
             if (password == r_conn.get(username)):
+
                 session[request.environ['REMOTE_ADDR'] + 'username'] = username
                 # username_session = username
-                return render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
+
+                return  render_template("Dashboard.html", name=session[request.environ['REMOTE_ADDR'] + 'username'])
             else:
                 return render_template("Login.html")
     else:
@@ -228,28 +234,36 @@ def logout():
         return redirect(url_for('login'))
 
 
-@app.route("/upload", methods=["GET", "POST"])
-def upload():
+@app.route("/upload/<path_dir>", methods=[ "POST"])
+def upload(path_dir):
     if request.environ['REMOTE_ADDR'] + 'username' in session:
-        if request.method == "GET":
-            size = 0
-            storage_di = dict()
-            for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
-                storage_di[item.split("\\")[-1]] = cal_size(item)
-                size += os.stat(item).st_size
-            return render_template("Upload.html", size=1024 * 1024 * 1024 - size)
-        elif request.method == "POST":
+        #if request.method == "GET":
+        #    size = 0
+        #    storage_di = dict()
+        #    for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+        #        storage_di[item.split("\\")[-1]] = cal_size(item)
+        #        size += os.stat(item).st_size
+        #   return render_template("Upload.html", size=1024 * 1024 * 1024 - size)
+        if request.method == "POST":
             file1 = request.files.getlist("file")
 
             for file in file1:
                 if (len("" + str(file.filename) + "a") <= 1):
-                    return render_template("Upload.html")
+                    return redirect(url_for('show_files',user_pa=path_dir))
                 else:
                     filename = secure_filename(file.filename)
-                    file.save(os.path.join("Data\\" +
-                                           session[request.environ['REMOTE_ADDR'] + 'username'], filename))
-                    if str(filename) not in file_conn.get(session[request.environ['REMOTE_ADDR'] + 'username']):
-                        file_conn.append(session[request.environ['REMOTE_ADDR'] + 'username'], str(filename) + ",")
+                    if(path_dir[-1] != '\\'):
+                        path_dir += "\\"
+                    file.save(os.path.join(path_dir, filename))
+                    if path_dir == "Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']+"\\":
+                        file_conn.append(session[request.environ['REMOTE_ADDR'] + 'username'],
+                                         filename+","
+                                         )
+                    else:
+                        folder_conn.append(
+                            path_dir[:-1:]+"$"+session[request.environ['REMOTE_ADDR'] + 'username'],
+                            filename+","
+                        )
             else:
                 return render_template("Confirmation.html", type_of_con="File Successfully Uploaded",
                                        return_url="Login", msg="Go to Dashboard")
@@ -258,19 +272,81 @@ def upload():
         return render_template("Login.html")
 
 
-@app.route("/data")
-def show_files():
+
+
+@app.route("/data/<user_pa>")
+def show_files(user_pa):
     if request.environ['REMOTE_ADDR'] + 'username' in session:
+        user_path = ""
+
+        folder_list_p = []
+        file_list = []
+        if user_pa == '\\' or user_pa == "Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']+ '\\' :
+
+                user_path = "Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']+ '\\'
+                file_list = file_conn.get(
+                    session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(",")
+
+                for j in file_list:
+                    if "." not in j:
+                        folder_list_p.append(j)
+                file_list = set(file_list).difference(set(folder_list_p))
+        else:
+
+            user_path =  user_pa
+            file_list = folder_conn.get(
+                user_pa+"$"+session[request.environ['REMOTE_ADDR'] + 'username']
+            )
+            if file_list == None:
+                file_list = []
+            else:
+                file_list = file_list.strip(",").split(",")
+            for j in file_list:
+                if "." not in j:
+                    folder_list_p.append(j)
+            file_list = set(file_list).difference(set(folder_list_p))
 
         return render_template("FilesDisplay.html",
                                name=session[request.environ['REMOTE_ADDR'] + 'username'],
                                name1=session[request.environ['REMOTE_ADDR'] + 'username'],
-                               file_list=file_conn.get(
-                                   session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(","),
-                               msg="Go to Dashboard"
-                               )
+                               file_list=list(file_list),
+                               folder_list = folder_list_p,
+                               msg="Go to Dashboard",
+                               dir_path=user_path
+                               ) + str(user_path)
     else:
         return render_template("Login.html")
+
+@app.route("/data/temp_route/<val1>/<val2>")
+def temp_route(val1,val2):
+    if (val1[-1] == '\\'):
+        return redirect(url_for('show_files',user_pa=str(val1+val2)))
+    else:
+        return redirect(url_for('show_files', user_pa=str(val1 + "\\"+ val2)))
+
+def def_file(di , storage_di):
+    if (os.path.isfile(di)):
+        storage_di[di.split("\\")[-1]] = cal_size(di)
+        return storage_di
+    else:
+        for k in glob(di+"/*"):
+
+            def_file(k , storage_di)
+
+
+def controller_def_file(path):
+    storage_di = dict()
+    size = 0
+    di_obj = def_file(path , storage_di)
+    return (storage_di)
+    #size += os.stat(item).st_size
+
+
+def single_dir(path):
+    storage_di = {}
+    for item in glob(path+"/*"):
+        storage_di[item.split("\\")[-1]] = cal_size(item)
+    return storage_di
 
 
 def convert_bytes(num):
@@ -286,47 +362,57 @@ def cal_size(file_name):
         return convert_bytes(file_info.st_size)
 
 
-@app.route("/storage", methods=["GET", "POST"])
-def show_storage():
+@app.route("/storage/<path>", methods=["GET", "POST"])
+def show_storage(path):
     if request.environ['REMOTE_ADDR'] + 'username' in session:
         if request.method == "GET":
-            storage_di = dict()
-            size = 0
-            for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
-                storage_di[item.split("\\")[-1]] = cal_size(item)
-                size += os.stat(item).st_size
-            return render_template("ShowStorage.html", storage_di=storage_di, total_size=size)
+
+
+            return render_template("ShowStorage.html", storage_di=single_dir(
+                path), total_size=0, dir_path = path.strip("\\"))
+
         elif request.method == "POST":
+            path += "\\"
             delete_list = request.form.getlist('sh_fi')
-            storage_list = file_conn.get(session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(",")
+            storage_list = []
+            flag = True
+            if path == "Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']+"\\":
+                storage_list = file_conn.get(session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(",")
+
+            else:
+
+                storage_list = folder_conn.get(path[:-1:]+"$"+session[request.environ['REMOTE_ADDR'] + 'username']).strip(",").split(",")
+                flag = False
             if (len(delete_list) > 0):
                 for file in delete_list:
                     if file in storage_list:
                         storage_list.remove(file)
-                        os.remove("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "\\" + file)
-                file_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],
+                        os.remove(path + file)
+                if(flag):
+                    file_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],
                               ",".join(storage_list) + ",")
+                else:
+                    folder_conn.set(path[:-1:]+"$"+session[request.environ['REMOTE_ADDR'] + 'username'],
+                                    ",".join(storage_list) + ",")
                 return render_template("Confirmation.html", type_of_con="Operation Successfully Done.",
                                        msg="Go to Dashboard")
             else:
-                storage_di = dict()
-                size = 0
-                for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
-                    storage_di[item.split("\\")[-1]] = cal_size(item)
-                    size += os.stat(item).st_size
-                return render_template("ShowStorage.html", storage_di=storage_di, total_size=size)
+                #return (path)
+                return render_template("ShowStorage.html", storage_di=single_dir(
+                    path), total_size=0, dir_path=path.strip("\\"))
+                #return render_template("ShowStorage.html", storage_di=storage_di, total_size=0)
     else:
         return render_template("Login.html")
 
 
-@app.route("/email", methods=["GET", "POST"])
-def send_email_data():
+@app.route("/email/<path>", methods=["GET", "POST"])
+def send_email_data(path):
     if request.environ['REMOTE_ADDR'] + 'username' in session:
         if request.method == "POST":
             mail_files = request.form.getlist('sh_fi')
             if (mail_files != None and len(mail_files) > 0):
                 for index in range(0, len(mail_files)):
-                    mail_files[index] = "Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "\\" + \
+                    mail_files[index] = path + \
                                         mail_files[index]
                 send_mail_multiple(mail_files,
                                    e_conn.get(session[request.environ['REMOTE_ADDR'] + 'username']),
@@ -336,17 +422,17 @@ def send_email_data():
             else:
                 storage_di = dict()
                 size = 0
-                for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
-                    storage_di[item.split("\\")[-1]] = cal_size(item)
-                    size += os.stat(item).st_size
-                return render_template("ShowStorage.html", storage_di=storage_di, total_size=size)
+                return render_template("ShowStorage.html", storage_di=single_dir(
+                    path), total_size=0, dir_path=path.strip("\\"))
+                #return render_template("ShowStorage.html", storage_di=storage_di, total_size=size,
+                #                       dir_path = path)
     else:
         return render_template("Login.html")
 
 
 @app.route('/download/<dirc>/<filename>', methods=['GET'])
 def download(dirc, filename):
-    uploads = os.path.join(current_app.root_path, "Data", dirc)
+    uploads = os.path.join(current_app.root_path,  dirc)
     return send_from_directory(directory=uploads, filename=filename)
 
 
@@ -381,7 +467,8 @@ def public(url, data):
                                name="Public Data",
                                file_list=data.strip(" ")[6:].split(";"),
                                msg="Go to Dashboard",
-                               name1=url.strip(" ")
+                               name1=url.strip(" "),
+                               dir_path = ""
                                )
     else:
         return render_template("Login.html")
@@ -501,6 +588,139 @@ def page_not_found(e):
     return render_template("ImageDisplay.html", name="404-snake.png"), 404
 
 
+@app.route("/data/<flag>/<dir_path>",methods=["POST"])
+def create_dir(flag,dir_path):
+    if flag == "True":
+        if dir_path == "Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']+"\\":
+            if not os.path.exists(dir_path + request.form["name_dir"]):
+                file_conn.append(session[request.environ['REMOTE_ADDR'] + 'username'], str(
+                request.form["name_dir"]
+                ) + ",")
+
+                os.makedirs(dir_path+request.form["name_dir"])
+                folder_conn.set(dir_path + request.form["name_dir"] + "$" + session[request.environ['REMOTE_ADDR'] + 'username'], "")
+
+                return redirect(url_for('show_files', user_pa=dir_path))
+
+        else:
+            temp = dir_path
+
+            if folder_conn.exists(dir_path+"$"+session[request.environ['REMOTE_ADDR'] + 'username']):
+                os.makedirs(temp + "\\" + request.form["name_dir"])
+                var_temp = folder_conn.get(dir_path+"$"+session[request.environ['REMOTE_ADDR'] + 'username'])
+                var_temp += request.form["name_dir"] +","
+                folder_conn.set(dir_path+"$"+session[request.environ['REMOTE_ADDR'] + 'username'],var_temp)
+                folder_conn.set(temp + "\\" + request.form["name_dir"]+"$"+session[request.environ['REMOTE_ADDR'] + 'username'],"")
+
+                return redirect(url_for('show_files',user_pa=temp))
+            else:
+
+                os.makedirs(temp +"\\" +request.form["name_dir"])
+                folder_conn.set(dir_path+"\\" +request.form["name_dir"]+"$"+session[request.environ['REMOTE_ADDR'] + 'username'], "")
+
+            return redirect(url_for('show_files'  ,user_pa=temp))
+
+
+
+@app.route("/profile",methods=["GET","POST"])
+def profile():
+    if request.environ['REMOTE_ADDR'] + 'username' in session:
+        if request.method == "GET":
+            return render_template("Profile.html",
+                                   name = session[request.environ['REMOTE_ADDR'] + 'username'],
+                                   email = e_conn.get(session[request.environ['REMOTE_ADDR'] + 'username']))
+
+        elif request.method == "POST":
+            name = request.form["name"]
+            email = request.form["email"]
+            if len(str(email)) != 0 and email != e_conn.get([session[request.environ['REMOTE_ADDR'] + 'username']]):
+                import smtplib as se
+                from email.mime.multipart import MIMEMultipart
+                from email.mime.text import MIMEText
+                s = se.SMTP_SSL('smtp.gmail.com')
+                msg = MIMEMultipart('alternative')
+                msg['Form'] = "ch.email.456@gmail.com"
+                msg['To'] = email
+                msg_part = MIMEText("Mail Successfully Changed")
+                msg.attach(msg_part)
+                s.login("ch.email.456@gmail.com", "ch.email.456")
+                s.sendmail("ch.email.456@gmail.com", email, msg.as_string())
+                s.quit()
+                e_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],email)
+
+            if len(str(name)) != 0 and r_conn.get(name) == None:
+                var_temp_profile = session[request.environ['REMOTE_ADDR'] + 'username']
+                r_pass = r_conn.get(var_temp_profile)
+                r_conn.delete(var_temp_profile)
+                r_conn.set(name,r_pass)
+                r_pass = e_conn.get(var_temp_profile)
+                e_conn.delete(var_temp_profile)
+                e_conn.set(name,r_pass)
+                r_pass = file_conn.get(var_temp_profile)
+                file_conn.delete(var_temp_profile)
+                file_conn.set(name,r_pass)
+                r_pass = session_conn.get(var_temp_profile)
+                session_conn.delete(var_temp_profile)
+                session_conn.set(name,r_pass)
+                session[request.environ['REMOTE_ADDR'] + 'username'] = name
+                r_pass = folder_conn.keys("Data\\"+var_temp_profile+"*")
+
+                for j in r_pass:
+                    uop = folder_conn.get(j)
+                    print (uop)
+                    folder_conn.delete(j)
+                    pol = j
+                    pol = pol.split("Data\\"+var_temp_profile+"\\")
+                    #pol.replace(var_temp_profile,name)
+                    #pol.replace("$"+var_temp_profile,"$"+name)
+                    pol = "Data\\"+name+"\\"+"".join(pol[1:])
+                    folder_conn.set(pol,uop)
+                os.rename("Data\\"+var_temp_profile,"Data\\"+name)
+            return redirect(url_for("login"))
+
+
+
+
+        else:
+            return redirect(url_for('profile'))
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route("/location_store",methods=["POST"])
+def location_store():
+     if request.environ['REMOTE_ADDR'] + 'username' in session:
+         if request.method == "POST":
+             loca = list(map(lambda x:x.strip(" "),request.form["location"].strip(" ").split("-")))
+             if session_conn.exists(session[request.environ['REMOTE_ADDR'] + 'username']):
+                 val = str(loca[1])+" "+str(loca[2])+" "+str(datetime.now())+","
+                 session_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],
+                                  session_conn.get(session[request.environ['REMOTE_ADDR'] + 'username'])+val
+                                  )
+             else:
+                 session_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],str(loca[1])+" "+str(loca[2])+" "+str(datetime.now())+",")
+
+             return redirect("login")
+         else:
+             return redirect("profile")
+     else:
+        return redirect("login")
+
+@app.route("/get_google_map",methods=["POST"])
+def get_google_map():
+    google_location = []
+    for x,y in enumerate(session_conn.get(session[request.environ['REMOTE_ADDR'] + 'username']).split(",")[:-1:]):
+        temp = [""]
+
+        temp.extend ( y.split(" ")[:-2:])
+        temp.append(x)
+        google_location.append(temp)
+
+    return render_template("GoogleMaps.html",data = json.dumps(google_location))
+
+
+
+
 @app.route("/test", methods=["GET", "POST"])
 def test_admin():
     if request.method == "GET":
@@ -513,8 +733,16 @@ def test_admin():
             </body>
             </html>"""
     elif request.method == "POST":
-        if request.form["password"] == "password" and "Mozilla" in request.headers['User-Agent']:
+        #if request.form["password"] == "password" and "Mozilla" in request.headers['User-Agent']:
             #return str(session[request.environ['REMOTE_ADDR'] + 'goog_session'])
-            return str(request.headers['User-Agent'])
-        else:
-            return render_template("Login.html")
+            #return str(request.headers['User-Agent'])
+        #else:
+         #   return render_template("Login.html")
+        #file_list = file_conn.append("ch1",",")
+        #file_list = file_conn.get("ch1")
+        #file_list = file_list[:-1:]
+        #file_conn.set("ch1",file_list)
+        return str(folder_conn.keys("*$"+"ch9"))
+
+        return "True"
+

@@ -3,8 +3,8 @@ from flask_oauthlib.client import OAuth
 from __init__ import app
 
 
-app.config['GOOGLE_ID'] = "ID"
-app.config['GOOGLE_SECRET'] = "S_KEY"
+app.config['GOOGLE_ID'] = "129383040303-t8g1oblarcla1np4uf85t8ofubod81vv.apps.googleusercontent.com"
+app.config['GOOGLE_SECRET'] = "Qj9U7GXAfzR6uUCt04naMSw9 "
 app.debug = True
 app.secret_key = 'development'
 oauth = OAuth(app)
@@ -57,7 +57,9 @@ def logout_google():
 
 @app.route('/check_google/authorized')
 def authorized():
+
     resp = google.authorized_response()
+
     if resp is None:
         return 'Access denied: reason=%s error=%s' % (
             request.args['error_reason'],
