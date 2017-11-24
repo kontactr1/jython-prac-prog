@@ -17,14 +17,21 @@
         Upload To {{name}} Drive
     </th>
 </tr>
-{%- for item in storage_di -%}
-     <tr>
-         <td>{{ item }}</td> <td>{{storage_di[item]}}</td><td><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
+{%- for item in list_item -%}
+        <tr>
+         {% if '.' in item %}
+         <td>{{ item }}</td>
+            <td>{{ list_item[item] }}</td>
+            <td style="text-align:center"><input type="checkbox" name="sh_fi" value="{{item}}" /></td>
+         {% else %}
+         <td ><a href="{{ url_for('upload_drive_files' , name=name, path=path+'\\'+item) }}">{{ item }}</a></td>
+         <td style="background:red;color:white;text-align:center">Directory</td>
+         {% endif %}
       </tr>
     {%- endfor -%}
      </table>
   <br /><br />
-    <input type="submit" value="Go To Procees"  formaction="{{url_for('upload_drive_files',name=name)}}" formmethod="POST"/><br /><br />
+    <input type="submit" value="Go To Procees"  formaction="{{url_for('upload_drive_files',name=name, path=path)}}" formmethod="POST"/><br /><br />
 </form>
 </body>
 </html>

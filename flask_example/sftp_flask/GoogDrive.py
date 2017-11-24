@@ -24,7 +24,7 @@ def goog_drive_auth(name):
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
         #return "Hello World"
-        return render_template("DriveTemp.html",Drive_name = "Google")
+        return render_template("DriveTemp.html",Drive_name = "Google", path="Data\\"+name)
 
 
         #####fetch code #############
@@ -90,16 +90,17 @@ def download_drive_file(file_id, output_file , name=None):
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v3', http=http)
     # file_id = '0BwwA4oUTeiV1UVNwOHItT0xfa2M'
-    request = service.files().export_media(fileId=file_id,
-                                           mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    # request = service.files().get_media(fileId=file_id)
+    #request = service.files().export_media(fileId=file_id,
+     #                                      mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    request = service.files().get_media(fileId=file_id)
 
-    fh = open(output_file, 'wb')  # io.BytesIO()
+    fh = open(output_file, 'wb')
+    #io.BytesIO()
     downloader = MediaIoBaseDownload(fh, request)
     done = False
     while done is False:
         status, done = downloader.next_chunk()
-    # print ("Download %d%%." % int(status.progress() * 100))
+        print ("Download %d%%." % int(status.progress() * 100))
     fh.close()
 
 

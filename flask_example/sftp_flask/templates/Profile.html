@@ -29,12 +29,35 @@
         padding: 0;
       }
     </style>
+<script>
+
+    function validate()
+    {
+    if (document.getElementById("password").value ==
+           document.getElementById("cpassword").value)
+           {
+
+                return true;
+           }
+      else
+      {
+        alert("Not match");
+        document.getElementById("password").value = "";
+        document.getElementById("cpassword").value = "";
+        document.getElementById("password").placeholder = "New password";
+        document.getElementById("cpassword").placeholder = "Confirm password";
+        return false;
+      }
+     }
+
+</script>
+
 
 </head>
 <body>
 <h2>Profile Details</h2>
 <table>
-    <form>
+    <form onsubmit="return validate();">
 
     <tr>
         <td>Name</td>
@@ -49,10 +72,31 @@
         name="email"></td>
     </tr>
 
+        <tr>
+        <td>Password</td>
+        <td><input type="password" placeholder="New Password" size="50" maxlength="50" autocomplete="true"
+        name="password" id="password"></td>
+    </tr>
+
+        <tr>
+        <td>Confirm Password</td>
+        <td><input type="password" placeholder="Confirm Password" size="50" maxlength="50" autocomplete="true"
+        name="cpassword" id="cpassword"></td>
+    </tr>
+
      <tr>
--
+
          <td>
      <input type="submit" value="Save" formaction="{{url_for('profile')}}" formmethod="post"><br/>
+        </td>
+
+     </tr>
+
+
+     <tr>
+
+         <td>
+     <input type="submit" value="Goto Dashboard" formaction="{{url_for('login')}}" formmethod="get"><br/>
         </td>
 
      </tr>
@@ -68,6 +112,10 @@
 
 <form action="{{url_for('get_google_map')}}" method="post" >
     <input type="submit" value="Get All History " >
+
+
+
+
 
 </form><br /><br />
 

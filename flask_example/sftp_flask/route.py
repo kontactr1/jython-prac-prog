@@ -11,6 +11,7 @@ from __init__ import app
 from datetime import datetime
 from decimal import *
 
+
 """import smtplib
 import mimetypes
 from email.mime.multipart import MIMEMultipart
@@ -177,6 +178,7 @@ def next_step():
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_password')
                     os.mkdir("Data\\" + session[request.environ['REMOTE_ADDR'] + 'temp_session_user'])
                     file_conn.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'], "")
+                    session_conn.set(session[request.environ['REMOTE_ADDR'] + 'temp_session_user'],"")
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_user')
                     session.pop(request.environ['REMOTE_ADDR'] + 'temp_session_email')
 
@@ -503,27 +505,33 @@ def goog_settings(data_obj):
 def file_format(file_name,user_name):
     return "Data\\"+user_name+"\\"+file_name
 
-@app.route("/<name>/upload_request",methods=["GET","POST"])
-def upload_drive_files(name):
+@app.route("/<name>/upload_request/<path>",methods=["GET","POST"])
+def upload_drive_files(name,path):
     if request.method == "GET":
-        storage_di = dict()
-        for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
-            storage_di[item.split("\\")[-1]] = cal_size(item)
-        return render_template("DriveUploadFiles.html" , name=name , storage_di=storage_di)
+
+        return render_template("DriveUploadFiles.html", list_item=single_dir(
+            path), total_size=0, path=path.strip("\\"), name=name)
+
+        #storage_di = dict()
+        #for item in glob("Data\\" + session[request.environ['REMOTE_ADDR'] + 'username'] + "/*"):
+        #    storage_di[item.split("\\")[-1]] = cal_size(item)
+        #return render_template("DriveUploadFiles.html" , name=name , storage_di=storage_di)
     if request.method == "POST":
+
         if name == "Google":
             upload_files = request.form.getlist('sh_fi')
             if (upload_files != None and len(upload_files) > 0):
                 with open('Credentials\\'+session[request.environ['REMOTE_ADDR'] + 'username']+"credentials.json") as data_file:
                     data = json.load(data_file)
                 for file in upload_files:
-                    attachment ,maintype = file_type(file_format(file,session[request.environ['REMOTE_ADDR'] + 'username']))
+
+                    attachment ,maintype = file_type(file_format(file,path[5::]))
                     http = httplib2.Http()
                     http = get_credentials().authorize(http)
 
                     drive_service = build('drive', 'v3', http=http)
-
-                    media_body = MediaFileUpload('Data/'+session[request.environ['REMOTE_ADDR'] + 'username']+'/'+file, mimetype='text/plain', resumable=True)
+                    #return (path)
+                    media_body = MediaFileUpload(path+"//"+file, mimetype='text/plain', resumable=True)
                     body = {
                         'name' : file,
                         'title': file,
@@ -533,14 +541,12 @@ def upload_drive_files(name):
 
                     file1 = drive_service.files().create(body=body, media_body=media_body).execute()
                     #drive_service.files().create(media_body='pig.png', body={'name': 'pig'}).execute()
-                    return (str(file1))
+                return render_template("Confirmation.html",msg="Goto Your Dashboard", type_of_con = "Successfully Uploaded Files"+
+                                                                                                " In Your Another "+
+                                                                                                "Storage")
 
-
-
-
-
-
-                    """r = requests.post(url="https://www.googleapis.com/upload/drive/v3?uploadType=media",
+                """
+                    r = requests.post(url="https://www.googleapis.com/upload/drive/v3?uploadType=media",
                                         data=attachment.__bytes__(),
                                       headers={"User-Agent": "", "Content-Type": str(maintype), "Content-Length": str(os.stat(
                                           file_format(file, session[
@@ -548,7 +554,7 @@ def upload_drive_files(name):
                                                "Authorization": data["access_token"]}
                                       )
                     return (str(r.request))"""
-                    """ req = urllib.request.Request(method="POST",
+                """ req = urllib.request.Request(method="POST",
                                                  headers={"User-Agent":"","Content-Type": maintype, "Content-Length": os.stat(
                                                      file_format(file, session[
                                                          request.environ['REMOTE_ADDR'] + 'username'])).st_size,
@@ -556,27 +562,57 @@ def upload_drive_files(name):
                                                  url="https://www.googleapis.com/upload/drive/v3?uploadType=media HTTP/1.1",
                                                  data=attachment.__bytes__()
                                                  )"""
-                    resp = urllib.request.urlopen(req)
+                """   #resp = urllib.request.urlopen(req)
                     #https = RequestMethods(headers={"Content-Type":maintype,"Content-Length":os.stat(file_format(file,session[request.environ['REMOTE_ADDR'] + 'username'])).st_size,
                      #                                      "Authorization":data["access_token"]})
                     #Resp = https.urlopen(method="POST",
                      #                             url="https://www.googleapis.com/upload/drive/v3?uploadType=media",
                      #                             body=attachment
                      #                             )
-                    return "Hello World"
+                     #return "0B3Qd1rlyIyR5bHo0dENpM1lSclk"""
 
 
 
 
 
-@app.route("/<name>/download_request")
-def download_drive_files(name):
-     all_files = fetch("'root' in parents and (mimeType = 'application/vnd.google-apps.folder' or mimeType != 'application/vnd.google-apps.folder')",
-                          sort='modifiedTime desc')
-     s = ""
-     for file in all_files:
-         s += "%s, %s<br>" % (file['name'], file['id'])
-     return s
+@app.route("/<name>/download_request/<path>",methods=["GET","POST"])
+def download_drive_files(name,path):
+    if request.method == "GET":
+         path = "'"+path+"'"
+         all_files = fetch(path+" in parents and (mimeType = 'application/vnd.google-apps.folder' or mimeType != 'application/vnd.google-apps.folder')",
+                              sort='modifiedTime desc')
+         list_item = {}
+         for file in all_files:
+             #s += "%s, %s<br>" % (file['name'], file['id'])
+             list_item[file['id']] = file['name']
+         #return s
+         #download_drive_file("0B5DUSJ7ypnG8V19sb180T18zNms","Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']
+         #                    +"\\"+"Temp.pdf")
+         #return str(list_item)
+         return render_template("DriveShowStorage.html",list_item=list_item,path=path)
+
+    elif request.method == "POST":
+        file_download_list = request.form.getlist('sh_fi')
+        st_file = ""
+        for file_do in file_download_list:
+            temp_po = file_do.split(" ")
+            download_drive_file(temp_po[0],
+                            "Data\\"+session[request.environ['REMOTE_ADDR'] + 'username']+"\\"+
+                                " ".join(temp_po[1::]))
+            st_file += " ".join(temp_po[1::])+","
+        file_conn.set(
+            session[request.environ['REMOTE_ADDR'] + 'username'],
+            file_conn.get(session[request.environ['REMOTE_ADDR'] + 'username'])+st_file
+        )
+        return render_template("Confirmation.html",type_of_con = "Successfully Downloaded In Your Home Directory",
+                               msg="GoTo Your Dashboard")
+
+
+    else:
+        redirect(url_for("login"))
+
+
+
 
 @app.route("/temp/redirect")
 def temp_redirect():
@@ -648,6 +684,13 @@ def profile():
                 s.quit()
                 e_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],email)
 
+
+
+            if (request.form["password"] == request.form["cpassword"]):
+                if len("" + request.form["password"]) != 0:
+                    r_conn.set(session[request.environ['REMOTE_ADDR'] + 'username'],request.form["password"])
+
+
             if len(str(name)) != 0 and r_conn.get(name) == None:
                 var_temp_profile = session[request.environ['REMOTE_ADDR'] + 'username']
                 r_pass = r_conn.get(var_temp_profile)
@@ -663,19 +706,21 @@ def profile():
                 session_conn.delete(var_temp_profile)
                 session_conn.set(name,r_pass)
                 session[request.environ['REMOTE_ADDR'] + 'username'] = name
-                r_pass = folder_conn.keys("Data\\"+var_temp_profile+"*")
 
+                r_pass = folder_conn.keys("Data?"+var_temp_profile+"*"+"$"+var_temp_profile)
                 for j in r_pass:
-                    uop = folder_conn.get(j)
-                    print (uop)
+                    folder_data = folder_conn.get(j)
+                    temp = j.split("\\")
+                    temp[1] = name
+                    temp = "\\".join(temp)
+                    temp = temp.split("$")
+                    temp[-1] = name
+                    temp = "$".join(temp)
                     folder_conn.delete(j)
-                    pol = j
-                    pol = pol.split("Data\\"+var_temp_profile+"\\")
-                    #pol.replace(var_temp_profile,name)
-                    #pol.replace("$"+var_temp_profile,"$"+name)
-                    pol = "Data\\"+name+"\\"+"".join(pol[1:])
-                    folder_conn.set(pol,uop)
+                    folder_conn.set(temp,folder_data)
+
                 os.rename("Data\\"+var_temp_profile,"Data\\"+name)
+
             return redirect(url_for("login"))
 
 

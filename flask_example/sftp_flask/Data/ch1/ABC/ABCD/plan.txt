@@ -1,0 +1,6 @@
+books (google drive)
+videos
+
+(python , c#)
+(edx(3 days of week) , udemy , codecaemy , bigdatauniversity , datacamp)
+( udacity (3 days of week) )

@@ -6,8 +6,8 @@
 </head>
 <body>
 <form>
-    <input type="submit" value="Upload Files" formmethod="GET" formaction="{{url_for('upload_drive_files',name=Drive_name)}}">
-    <input type="submit" value="Download Files" formmethod="GET" formaction="{{url_for('download_drive_files',name=Drive_name)}}">
+    <input type="submit" value="Upload Files" formmethod="GET" formaction="{{url_for('upload_drive_files',name=Drive_name, path=path)}}">
+    <input type="submit" value="Download Files" formmethod="GET" formaction="{{url_for('download_drive_files',name=Drive_name, path='root')}}">
 </form>
 </body>
 </html>
