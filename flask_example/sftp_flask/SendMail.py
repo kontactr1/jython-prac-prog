@@ -50,6 +50,6 @@ def send_mail_multiple(list_of_files,email,user_name):
 
     server = smtplib.SMTP_SSL("smtp.gmail.com")
     # server.starttls()
-    server.login("ch.email.456@gmail.com", "ch.email.456")
+    server.login("ch.email.456@gmail.com", "ch1234567890")
     server.sendmail(emailfrom, emailto, msg.as_string())
     server.quit()
